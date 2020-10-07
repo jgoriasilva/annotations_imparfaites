@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='1'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -70,10 +70,13 @@ elif opt_name == "adam":
 else:
 	raise NameError("Wrong optimizer name")
 model.compile(loss=loss_func, optimizer=opt)
+
+'''
 if input('Save initial weights [y/n]? ') == 'y':
 	model.save_weights(os.path.join('weights','start_weights.h5'))
 if input('Print model [y/n]? ') == 'y':
 	print(model.summary())
+'''
 
 # fit params
 batch_size = 128
@@ -88,7 +91,8 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = input('Train type [control/oubli]: ')
+train_type = 'taille'
+#train_type = input('Train type [control/oubli/taille]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -97,7 +101,7 @@ if train_type == 'control':
 	# Early stopping
 	es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
 	# Save training metrics regularly
-	csv_logger = CSVLogger(os.path.join('logs','training_control.log'))
+	csv_logger = CSVLogger(os.path.join('logs','training','training_control.log'))
 	verbose = 1
 	history = model.fit(X_train, Y_train,
    	    	            batch_size=batch_size,
@@ -120,10 +124,10 @@ if train_type == 'control':
 	plt.xlabel('epoch')
 	plt.legend()
 	plt.ylim(0.0, 0.9)
-	plt.savefig(os.path.join('images','training_control.png'))
+	plt.savefig(os.path.join('images','training','training_control.png'))
 
 elif train_type == 'oubli':
-	distortion_log = open(os.path.join('logs','distortion_oubli.log'),'w')
+	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
 	for proba_oversight in range(0, 105, 5):
 		proba_oversight /= 100
 		# Generate the images
@@ -147,11 +151,11 @@ elif train_type == 'oubli':
 
 		# Load weights
 		model.load_weights(os.path.join('weights','start_weights.h5'))
-
+		
   		# Training
   		# Save training metrics regularly
 		param_str = str(int(100*proba_oversight))
-		csv_logger = CSVLogger(os.path.join('logs','training_log_oubli'+param_str+'.log'))
+		csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli'+param_str+'.log'))
   		# Early stopping
 		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
 		verbose = 0
@@ -164,7 +168,7 @@ elif train_type == 'oubli':
                       callbacks=[es, csv_logger])
   
   		# serialize weights to HDF5
-		model.save_weights(os.path.join('weights','model_oubli_'+param_str+'.h5'))
+		model.save_weights(os.path.join('weights','oubli','model_oubli_'+param_str+'.h5'))
 		print('Saved model oubli '+param_str+' to disk')
 		
 		# Training curve
@@ -176,12 +180,83 @@ elif train_type == 'oubli':
 		plt.xlabel('epoch')
 		plt.legend()
 		plt.ylim(0.0, 0.9)
-		plt.savefig(os.path.join('images','training_curve_oubli'+param_str+'.png'))
+		plt.savefig(os.path.join('images','training','training_curve_oubli'+param_str+'.png'))
 		plt.cla()	
 		plt.clf()
 		plt.close()
 		
  	
 		# Distortion between gt and labels 	
-		distortion_log.write('Distortion between ground truth and labels for oubli ' + str(proba_oversight) + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + param_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+	distortion_log.close()
+
+elif train_type == 'taille':	
+	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
+	for taille in range(20, 110,5):
+		taille /= 10
+		param_str = str(taille)
+		# Generate the images
+		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
+		for i in range(img_number):
+			im3=img_imp_gt[i,:,:,0]
+			n_rings = data[i, :, 0].sum()
+			for j in range(n_rings):
+				if data[i][j][0]==1:
+					x=data[i][j][1]
+					y=data[i][j][2]
+					r1=taille
+					r2=r1*rad_ratio
+					v=data[i][j][4]
+					draw_ring(im3,x,y,r1,r2,1)
+		'''
+		plt.figure()
+		plt.subplot(1,2,1)
+		plt.imshow(img_imp_gt[2])
+		plt.subplot(1,2,2)
+		plt.imshow(img_gt[2])
+		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
+		'''
+
+		# Labels
+		Y_train=img_imp_gt[:n_train,:,:,:]
+		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
+		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+
+		# Load weights
+		model.load_weights(os.path.join('weights','start_weights.h5'))
+
+  		# Training
+  		# Save training metrics regularly
+		csv_logger = CSVLogger(os.path.join('logs','training','training_log_taille'+param_str+'.log'))
+  		# Early stopping
+		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
+		verbose = 0
+		history = model.fit(X_train, Y_train,
+                      batch_size=batch_size,
+                      epochs=nb_epoch,
+                      validation_data=(X_val, Y_val),
+                      shuffle=True,
+                      verbose=verbose,
+                      callbacks=[es, csv_logger])
+  		# serialize weights to HDF5
+		model.save_weights(os.path.join('weights','taille','model_taille_'+param_str+'.h5'))
+		print('Saved model oubli '+param_str+' to disk')
+		
+		# Training curve
+		plt.rcParams['figure.figsize'] = (10.0, 8.0)
+		plt.plot(history.epoch, history.history['loss'], label='train')
+		plt.plot(history.epoch, history.history['val_loss'], label='val')
+		plt.title('Training performance')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend()
+		plt.ylim(0.0, 0.9)
+		plt.savefig(os.path.join('images','training','training_curve_taille'+param_str+'.png'))
+		plt.cla()	
+		plt.clf()
+		plt.close()
+		
+ 		
+		# Distortion between gt and labels 	
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + param_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
 	distortion_log.close()
