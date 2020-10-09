@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='1'
+os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -71,12 +71,10 @@ else:
 	raise NameError("Wrong optimizer name")
 model.compile(loss=loss_func, optimizer=opt)
 
-'''
 if input('Save initial weights [y/n]? ') == 'y':
 	model.save_weights(os.path.join('weights','start_weights.h5'))
 if input('Print model [y/n]? ') == 'y':
 	print(model.summary())
-'''
 
 # fit params
 batch_size = 128
@@ -91,8 +89,7 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'taille'
-#train_type = input('Train type [control/oubli/taille]: ')
+train_type = input('Train type [control/oubli/taille]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -128,7 +125,9 @@ if train_type == 'control':
 
 elif train_type == 'oubli':
 	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
-	for proba_oversight in range(0, 105, 5):
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
+	runs_train = int(input('how many training runs? '))
+	for proba_oversight in range(30, 40, 5):
 		proba_oversight /= 100
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -148,29 +147,34 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
-
-		# Load weights
-		model.load_weights(os.path.join('weights','start_weights.h5'))
 		
-  		# Training
-  		# Save training metrics regularly
-		param_str = str(int(100*proba_oversight))
-		csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli'+param_str+'.log'))
-  		# Early stopping
-		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
-		verbose = 0
-		history = model.fit(X_train, Y_train,
+		oubli_str = str(int(100*proba_oversight))
+		runs_str = str(runs_train)
+		for run in range(runs_train):
+			patience -= run*5
+			# Load weights
+			model.load_weights(os.path.join('weights','start_weights.h5'))
+  			# Training
+  			# Save training metrics regularly
+			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+runs_str+'.log'))
+	  		# Early stopping
+			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
+			verbose = 2
+			history = model.fit(X_train, Y_train,
                       batch_size=batch_size,
                       epochs=nb_epoch,
                       validation_data=(X_val, Y_val),
                       shuffle=True,
                       verbose=verbose,
                       callbacks=[es, csv_logger])
-  
-  		# serialize weights to HDF5
-		model.save_weights(os.path.join('weights','oubli','model_oubli_'+param_str+'.h5'))
-		print('Saved model oubli '+param_str+' to disk')
-		
+
+			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			Y_train = model.predict(X_train)
+			Y_val = model.predict(X_val)
+		# serialize weights to HDF5
+		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
+		print('Saved model oubli '+oubli_str+' to disk')
+		'''
 		# Training curve
 		plt.rcParams['figure.figsize'] = (10.0, 8.0)
 		plt.plot(history.epoch, history.history['loss'], label='train')
@@ -184,11 +188,12 @@ elif train_type == 'oubli':
 		plt.cla()	
 		plt.clf()
 		plt.close()
-		
+		'''
  	
 		# Distortion between gt and labels 	
-		distortion_log.write('Jaccard between ground truth and labels for oubli ' + param_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
 	distortion_log.close()
+	jaccard_log.close()
 
 elif train_type == 'taille':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
@@ -240,7 +245,7 @@ elif train_type == 'taille':
                       callbacks=[es, csv_logger])
   		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','taille','model_taille_'+param_str+'.h5'))
-		print('Saved model oubli '+param_str+' to disk')
+		print('Saved model taille '+param_str+' to disk')
 		
 		# Training curve
 		plt.rcParams['figure.figsize'] = (10.0, 8.0)
