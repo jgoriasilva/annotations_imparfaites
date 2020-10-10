@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='2'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -151,14 +151,14 @@ elif train_type == 'oubli':
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
 		for run in range(runs_train):
-			patience -= run*5
+			print('oubli {}, run {}, patience {}'.format(proba_oversight,run,patience))
 			# Load weights
 			model.load_weights(os.path.join('weights','start_weights.h5'))
   			# Training
   			# Save training metrics regularly
 			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+runs_str+'.log'))
 	  		# Early stopping
-			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
+			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
 			verbose = 2
 			history = model.fit(X_train, Y_train,
                       batch_size=batch_size,
@@ -171,6 +171,7 @@ elif train_type == 'oubli':
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			Y_train = model.predict(X_train)
 			Y_val = model.predict(X_val)
+			patience -= 5
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
