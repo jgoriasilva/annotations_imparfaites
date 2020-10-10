@@ -71,10 +71,12 @@ else:
 	raise NameError("Wrong optimizer name")
 model.compile(loss=loss_func, optimizer=opt)
 
+'''
 if input('Save initial weights [y/n]? ') == 'y':
 	model.save_weights(os.path.join('weights','start_weights.h5'))
 if input('Print model [y/n]? ') == 'y':
 	print(model.summary())
+'''
 
 # fit params
 batch_size = 128
@@ -89,7 +91,8 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = input('Train type [control/oubli/taille]: ')
+train_type = 'oubli'
+#train_type = input('Train type [control/oubli/taille]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -126,9 +129,13 @@ if train_type == 'control':
 elif train_type == 'oubli':
 	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
-	runs_train = int(input('how many training runs? '))
-	for proba_oversight in range(30, 40, 5):
+	runs_train = 5
+	#runs_train = int(input('how many training runs? '))
+	for proba_oversight in range(0, 105, 5):
 		proba_oversight /= 100
+		oubli_str = str(int(100*proba_oversight))
+		runs_str = str(runs_train)
+		patience = 20
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -147,9 +154,26 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
-		
-		oubli_str = str(int(100*proba_oversight))
-		runs_str = str(runs_train)
+
+		plt.figure()
+		for i in range(5):
+			plt.subplot(5,4,i*4+1).title.set_text('label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+2).title.set_text('vérité')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+3).title.set_text('label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+4).title.set_text('vérité')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')
+		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
+
 		for run in range(runs_train):
 			print('oubli {}, run {}, patience {}'.format(proba_oversight,run,patience))
 			# Load weights
@@ -171,7 +195,27 @@ elif train_type == 'oubli':
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			Y_train = model.predict(X_train)
 			Y_val = model.predict(X_val)
-			patience -= 5
+			
+			plt.figure()
+			for i in range(5):
+				plt.subplot(5,4,i*4+1).title.set_text('sortie')
+				plt.imshow(Y_train[i])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+2).title.set_text('vérité')
+				plt.imshow(img_gt[i])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+3).title.set_text('sortie')
+				plt.imshow(Y_val[i])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+4).title.set_text('vérité')
+				plt.imshow(img_gt[n_train+i])
+				plt.axis('off')	
+			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
+			
+			patience -= 3
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
