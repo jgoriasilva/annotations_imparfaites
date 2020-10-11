@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='2'
+os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
+from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 
 # matplotlib default values
@@ -131,7 +132,7 @@ elif train_type == 'oubli':
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	runs_train = 5
 	#runs_train = int(input('how many training runs? '))
-	for proba_oversight in range(0, 105, 5):
+	for proba_oversight in range(60, 105, 5):
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
@@ -175,12 +176,15 @@ elif train_type == 'oubli':
 		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
 
 		for run in range(runs_train):
+			K.clear_session()
+			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
+			model.compile(loss=loss_func, optimizer=opt)
 			print('oubli {}, run {}, patience {}'.format(proba_oversight,run,patience))
 			# Load weights
-			model.load_weights(os.path.join('weights','start_weights.h5'))
+			# model.load_weights(os.path.join('weights','start_weights.h5'))
   			# Training
   			# Save training metrics regularly
-			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+runs_str+'.log'))
+			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+str(run)+'.log'))
 	  		# Early stopping
 			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
 			verbose = 2
@@ -193,6 +197,7 @@ elif train_type == 'oubli':
                       callbacks=[es, csv_logger])
 
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 			Y_train = model.predict(X_train)
 			Y_val = model.predict(X_val)
 			
