@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='1'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -132,7 +132,7 @@ elif train_type == 'oubli':
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	runs_train = 5
 	#runs_train = int(input('how many training runs? '))
-	for proba_oversight in range(60, 105, 5):
+	for proba_oversight in range(80, 105, 5):
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
@@ -181,7 +181,7 @@ elif train_type == 'oubli':
 			model.compile(loss=loss_func, optimizer=opt)
 			print('oubli {}, run {}, patience {}'.format(proba_oversight,run,patience))
 			# Load weights
-			# model.load_weights(os.path.join('weights','start_weights.h5'))
+			model.load_weights(os.path.join('weights','start_weights.h5'))
   			# Training
   			# Save training metrics regularly
 			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+str(run)+'.log'))
@@ -198,8 +198,17 @@ elif train_type == 'oubli':
 
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
-			Y_train = model.predict(X_train)
-			Y_val = model.predict(X_val)
+			Y_train_prev = Y_train[:,:,:,:] 
+			Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+			Y_train = model.predict(X_train)[:,:,:,:] + Y_train_prev[:,:,:,:]
+			np.clip(Y_train,0,1)
+			Y_train[Y_train > 0.2] = 1
+			
+			Y_val_prev = Y_val[:,:,:,:] 
+			Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
+			Y_val = model.predict(X_val)[:,:,:,:] + Y_val_prev[:,:,:,:]
+			np.clip(Y_val,0,1)
+			Y_val[Y_val > 0.2] = 1
 			
 			plt.figure()
 			for i in range(5):
