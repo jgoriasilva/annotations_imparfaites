@@ -198,17 +198,20 @@ elif train_type == 'oubli':
 
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
-			Y_train_prev = Y_train[:,:,:,:] 
-			Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
-			Y_train = model.predict(X_train)[:,:,:,:] + Y_train_prev[:,:,:,:]
-			np.clip(Y_train,0,1)
-			Y_train[Y_train > 0.2] = 1
 			
-			Y_val_prev = Y_val[:,:,:,:] 
+			# Y_train_prev = Y_train[:,:,:,:] 
+			Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+			Y_train = model.predict(X_train)[:,:,:,:]
+			# Y_train = model.predict(X_train)[:,:,:,:] + Y_train_prev[:,:,:,:]
+			# np.clip(Y_train,0,1)
+			# Y_train[Y_train > 0.2] = 1
+			
+			# Y_val_prev = Y_val[:,:,:,:] 
 			Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
-			Y_val = model.predict(X_val)[:,:,:,:] + Y_val_prev[:,:,:,:]
-			np.clip(Y_val,0,1)
-			Y_val[Y_val > 0.2] = 1
+			Y_val = model.predict(X_val)[:,:,:,:]
+			# Y_val = model.predict(X_val)[:,:,:,:] + Y_val_prev[:,:,:,:]
+			# np.clip(Y_val,0,1)
+			# Y_val[Y_val > 0.2] = 1
 			
 			plt.figure()
 			for i in range(5):
