@@ -132,7 +132,7 @@ elif train_type == 'oubli':
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	runs_train = 5
 	#runs_train = int(input('how many training runs? '))
-	for proba_oversight in range(80, 105, 5):
+	for proba_oversight in range(0, 105, 5):
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
@@ -174,7 +174,9 @@ elif train_type == 'oubli':
 			plt.imshow(img_gt[n_train+i])
 			plt.axis('off')
 		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
-
+		plt.clf()
+		plt.close()
+	
 		for run in range(runs_train):
 			K.clear_session()
 			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
@@ -231,8 +233,10 @@ elif train_type == 'oubli':
 				plt.imshow(img_gt[n_train+i])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
+			plt.clf()
+			plt.close()
 			
-			patience -= 3
+			# patience -= 3
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
