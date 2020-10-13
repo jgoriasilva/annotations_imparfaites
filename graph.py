@@ -2,11 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-train_type = input('train type? [oubli/taille]? ')
+train_type = input('train type? ')
 distortion_log = open(os.path.join('logs','distortion','distortion_'+train_type+'.log'),'r')
 jaccard_log = open(os.path.join('logs','jaccard','jaccard_'+train_type+'.log'),'r')
 distortion_data = []
 jaccard_data = []
+
+if train_type == 'oubli':
+	total_run = int(input('How many sequential runs? '))
 
 for line in distortion_log:
 	distortion_data.append(float(line.split(' ')[-1]))
@@ -20,8 +23,6 @@ for line in jaccard_log:
 	jaccard_data.append(float(line.split(' ')[-1]))
 y = np.array(jaccard_data)
 
-if train_type == 'oubli':
-	total_run = int(input('How many sequential runs? '))
 
 # Scatter plot
 plt.figure()
