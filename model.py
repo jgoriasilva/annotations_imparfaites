@@ -130,8 +130,11 @@ if train_type == 'control':
 elif train_type == 'oubli':
 	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
+	
+	modifications = 'y'
+	# modifications = input('make modifications to the outputs? ')
 	runs_train = 5
-	#runs_train = int(input('how many training runs? '))
+	# runs_train = int(input('how many training runs? '))
 	for proba_oversight in range(0, 105, 5):
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
@@ -201,19 +204,20 @@ elif train_type == 'oubli':
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 			
-			# Y_train_prev = Y_train[:,:,:,:] 
-			Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
-			Y_train = model.predict(X_train)[:,:,:,:]
-			# Y_train = model.predict(X_train)[:,:,:,:] + Y_train_prev[:,:,:,:]
-			# np.clip(Y_train,0,1)
-			# Y_train[Y_train > 0.2] = 1
+			if modifications == 'y':
+				Y_train = np.maximum(model.predict(X_train), Y_train)
+				Y_train[Y_train >= 0.5] = 1
+				Y_train[Y_train < 0.5] = 0
+
+				Y_val = np.maximum(model.predict(X_val), Y_val)
+				Y_val[Y_val >= 0.5] = 1
+				Y_val[Y_val < 0.5] = 0
+			elif modifications == 'n':
+				Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_train = model.predict(X_train)[:,:,:,:]
 			
-			# Y_val_prev = Y_val[:,:,:,:] 
-			Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
-			Y_val = model.predict(X_val)[:,:,:,:]
-			# Y_val = model.predict(X_val)[:,:,:,:] + Y_val_prev[:,:,:,:]
-			# np.clip(Y_val,0,1)
-			# Y_val[Y_val > 0.2] = 1
+				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
+				Y_val = model.predict(X_val)[:,:,:,:]
 			
 			plt.figure()
 			for i in range(5):
