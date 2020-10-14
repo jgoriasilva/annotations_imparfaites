@@ -27,7 +27,7 @@ y = np.array(jaccard_data)
 # Scatter plot
 plt.figure()
 if train_type == 'oubli':
-	for run in range(total_run):
+	for run in range(0,total_run,3):
 		plt.plot(x[run:len(x):total_run], y[run:len(y):total_run], 'o', label=str(run))
 else:
 	plt.plot(x, y, 'o')
