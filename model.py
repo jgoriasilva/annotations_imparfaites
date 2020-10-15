@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='1'
+os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -135,11 +135,11 @@ elif train_type == 'oubli':
 	# modifications = input('make modifications to the outputs? ')
 	runs_train = 20
 	# runs_train = int(input('how many training runs? '))
-	for proba_oversight in range(0, 105, 5):
+	for proba_oversight in range(60, 100, 5):
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
-		patience = 20
+		patience = 10
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -200,37 +200,39 @@ elif train_type == 'oubli':
                       shuffle=True,
                       verbose=verbose,
                       callbacks=[es, csv_logger])
-
+			
 			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 			
 			plt.figure()
 			for i in range(5):
-				plt.subplot(5,4,i*4+1).title.set_text('sortie')
-				plt.imshow(Y_train[i])
+				plt.subplot(5,4,i*4+1).title.set_text('prédiction')
+				plt.imshow(model.predict(X_test)[i*3])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,4,i*4+2).title.set_text('vérité')
-				plt.imshow(img_gt[i])
+				plt.imshow(Y_test[i*3])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+3).title.set_text('sortie')
-				plt.imshow(Y_val[i])
+				plt.subplot(5,4,i*4+3).title.set_text('prédiction')
+				plt.imshow(model.predict(X_test)[(i+1)*5])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,4,i*4+4).title.set_text('vérité')
-				plt.imshow(img_gt[n_train+i])
+				plt.imshow(Y_test[(i+1)*5])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
 			
+			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
+			
 			if modifications == 'y':
-				Y_train = np.maximum(model.predict(X_train), Y_train)
+				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
 				Y_train[Y_train >= 0.5] = 1
 				Y_train[Y_train < 0.5] = 0
 
-				Y_val = np.maximum(model.predict(X_val), Y_val)
+				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
 				Y_val[Y_val >= 0.5] = 1
 				Y_val[Y_val < 0.5] = 0
 
@@ -241,8 +243,10 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
+			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
 			
-			# patience -= 3
+			# patience -= 1
+		
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
