@@ -20,7 +20,9 @@ else:
 	x = np.array(distortion_data)
 
 for line in jaccard_log:
-	jaccard_data.append(float(line.split(' ')[-1]))
+	line_split = line.split(' ')
+	if(line_split[2] == 'test'):
+		jaccard_data.append(float(line.split(' ')[-1]))
 y = np.array(jaccard_data)
 
 
