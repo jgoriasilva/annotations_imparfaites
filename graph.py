@@ -56,6 +56,8 @@ elif deg == 2:
 plt.xlabel('Jaccard between ground truth labels and labels given to the network')
 plt.ylabel('Jaccard between ground truth labels and outputs of the network')
 plt.title('Relation between imperfect labeling and network performance')
+plt.xlim(0)
+plt.ylim(0)
 plt.legend()
 plt.grid()
 plt.savefig(os.path.join('images','graph_'+train_type+'.png'))
