@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='1'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -11,6 +11,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 
 import numpy as np
 import matplotlib.pyplot as plt
+from skimage import filters
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
@@ -139,7 +140,7 @@ elif train_type == 'oubli':
 		proba_oversight /= 100
 		oubli_str = str(int(100*proba_oversight))
 		runs_str = str(runs_train)
-		patience = 16
+		patience = 20
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -230,12 +231,18 @@ elif train_type == 'oubli':
 			
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
-				Y_train[Y_train >= 0.5] = 1
-				Y_train[Y_train < 0.5] = 0
-
+				for img in Y_train:
+					threshold = filters.threshold_otsu(img)
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+				print('threshold on train set = {}'.format(threshold))
+								
 				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
-				Y_val[Y_val >= 0.5] = 1
-				Y_val[Y_val < 0.5] = 0
+				for img in Y_val:
+					threshold = filters.threshold_otsu(img)
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+				print('threshold on val set = {}'.format(threshold))
 
 			elif modifications == 'n':
 				Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
