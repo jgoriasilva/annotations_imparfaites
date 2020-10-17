@@ -160,27 +160,8 @@ elif train_type == 'oubli':
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-		plt.figure()
-		for i in range(5):
-			plt.subplot(5,4,i*4+1).title.set_text('label')
-			plt.imshow(Y_train[i])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+2).title.set_text('vérité')
-			plt.imshow(img_gt[i])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+3).title.set_text('label')
-			plt.imshow(Y_val[i])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+4).title.set_text('vérité')
-			plt.imshow(img_gt[n_train+i])
-			plt.axis('off')
-		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
-		plt.clf()
-		plt.close()
-	
+		quit_train = 0
+		
 		for run in range(runs_train):
 			K.clear_session()
 			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
@@ -225,12 +206,19 @@ elif train_type == 'oubli':
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
-			
+		
+			if(quit_train) == 1:
+				break
+	
+			jaccard_train_before = jaccard(Y_train,img_gt[:n_train,:,:,:])
+			jaccard_val_before = jaccard(Y_val,img_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
 			
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
+				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_train_tmp = Y_train[:,:,:,:]
 				for img in Y_train:
 					threshold = filters.threshold_otsu(img)
 					img[img >= threshold] = 1
@@ -238,6 +226,8 @@ elif train_type == 'oubli':
 				print('threshold on train set = {}'.format(threshold))
 								
 				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
+				Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_val_tmp = Y_val[:,:,:,:]
 				for img in Y_val:
 					threshold = filters.threshold_otsu(img)
 					img[img >= threshold] = 1
@@ -251,10 +241,17 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
+			jaccard_train_after = jaccard(Y_train,img_gt[:n_train,:,:,:])
+			jaccard_val_after = jaccard(Y_val,img_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
 			
-			# patience -= 1
+			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
+				Y_train = Y_train_tmp
+				Y_val = Y_val_tmp
+				quit_train = 1
+			
+			# patience -= 2
 		
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
