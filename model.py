@@ -70,10 +70,13 @@ elif opt_name == "adam":
 else:
 	raise NameError("Wrong optimizer name")
 model.compile(loss=loss_func, optimizer=opt)
+
+'''
 if input('Save initial weights [y/n]? ') == 'y':
 	model.save_weights(os.path.join('weights','start_weights.h5'))
 if input('Print model [y/n]? ') == 'y':
 	print(model.summary())
+'''
 
 # fit params
 batch_size = 128
@@ -88,7 +91,8 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = input('Train type [control/oubli]: ')
+train_type = 'oubli'
+# train_type = input('Train type [control/oubli]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -124,7 +128,7 @@ if train_type == 'control':
 
 elif train_type == 'oubli':
 	distortion_log = open(os.path.join('logs','distortion_oubli.log'),'w')
-	for proba_oversight in range(0, 105, 5):
+	for proba_oversight in range(0, 100, 5):
 		proba_oversight /= 100
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -154,7 +158,7 @@ elif train_type == 'oubli':
 		csv_logger = CSVLogger(os.path.join('logs','training_log_oubli'+param_str+'.log'))
   		# Early stopping
 		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
-		verbose = 0
+		verbose = 2
 		history = model.fit(X_train, Y_train,
                       batch_size=batch_size,
                       epochs=nb_epoch,

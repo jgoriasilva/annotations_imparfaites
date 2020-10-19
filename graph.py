@@ -20,7 +20,7 @@ y = np.array(jaccard_data)
 # Scatter plot
 plt.figure()
 for run in range(total_run):
-	plt.plot(x[run:len(x):total_run], y[run:len(y):total_run], 'o', label=str(run))
+	plt.plot(x[run:len(x):total_run], y[run:len(y):total_run], 'o', label='network outputs')
 '''
 # Curve fitting
 deg = int(input('Degree of polynomial fit: '))
@@ -43,7 +43,8 @@ elif deg == 2:
 plt.xlabel('Jaccard between ground truth labels and labels given to the network')
 plt.ylabel('Jaccard between ground truth labels and outputs of the network')
 plt.title('Relation between imperfect labeling and network performance')
+plt.plot([0,1],[0,1],label='y = x')
 plt.legend()
 plt.grid()
 plt.savefig(os.path.join('images','graph_oubli.png'))
-plt.show()
+#plt.show()

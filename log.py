@@ -66,7 +66,7 @@ initial_X_test[:,:,:,:] = X_test[:,:,:,:]
 gauss_n_std = 40
 noise = AdditiveGaussianNoise(gauss_n_std)
 look = 7
-for oubli in range(0,105,5):
+for oubli in range(0,100,5):
 	model.load_weights(os.path.join('weights','model_oubli_'+str(oubli)+'.h5'))
 	for iterate in range (0,total_run):	
 		Y_pred = model.predict(X_test)
