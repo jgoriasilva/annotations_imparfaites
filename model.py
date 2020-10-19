@@ -210,10 +210,10 @@ elif train_type == 'oubli':
 			if(quit_train) == 1:
 				break
 	
-			jaccard_train_before = jaccard(Y_train,img_gt[:n_train,:,:,:])
-			jaccard_val_before = jaccard(Y_val,img_gt[n_train:n_train+n_val,:,:,:])
-			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
-			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
+			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
 			
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
@@ -241,10 +241,10 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
-			jaccard_train_after = jaccard(Y_train,img_gt[:n_train,:,:,:])
-			jaccard_val_after = jaccard(Y_val,img_gt[n_train:n_train+n_val,:,:,:])
-			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
-			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
+			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
 			
 			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
 				Y_train = Y_train_tmp
