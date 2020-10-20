@@ -12,6 +12,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import filters
+from skimage import exposure
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
@@ -134,7 +135,7 @@ elif train_type == 'oubli':
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 20
+	runs_train = 5
 	# runs_train = int(input('how many training runs? '))
 	for proba_oversight in range(0, 100, 5):
 		proba_oversight /= 100
@@ -159,10 +160,10 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
-
-		quit_train = 0
-		
+	
 		for run in range(runs_train):
+			continue_train = 0
+			
 			K.clear_session()
 			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 			model.compile(loss=loss_func, optimizer=opt)
@@ -206,14 +207,31 @@ elif train_type == 'oubli':
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
-		
-			if(quit_train) == 1:
+			
+			for image in model.predict(X_test):
+				black = 0
+				gray = 0
+				for row in image:
+					for pixel in row:
+						if pixel[:]*256 < 20:
+							black += 1
+						if pixel[:]*256 < 240:
+							gray += 1
+				
+				rate = float(black)/float(gray)
+				if(rate < 0.80):
+					continue_train = 1
+					break
+			
+			if(continue_train == 0):
 				break
-	
+			
+			'''
 			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
+			'''
 			
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
@@ -223,7 +241,6 @@ elif train_type == 'oubli':
 					threshold = filters.threshold_otsu(img)
 					img[img >= threshold] = 1
 					img[img < threshold] = 0
-				print('threshold on train set = {}'.format(threshold))
 								
 				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
 				Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -232,7 +249,6 @@ elif train_type == 'oubli':
 					threshold = filters.threshold_otsu(img)
 					img[img >= threshold] = 1
 					img[img < threshold] = 0
-				print('threshold on val set = {}'.format(threshold))
 
 			elif modifications == 'n':
 				Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -241,15 +257,18 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
+			'''
 			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
-			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
-			
+			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:])))
+
 			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
 				Y_train = Y_train_tmp
 				Y_val = Y_val_tmp
 				quit_train = 1
+			
+			'''
 			
 			# patience -= 2
 		

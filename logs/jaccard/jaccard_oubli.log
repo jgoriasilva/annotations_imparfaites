@@ -1,80 +1,47 @@
-Jaccard on test set for oubli 0 run 0 0.8510642592912243
-Jaccard on train set before seuil for oubli 0 run 0 1.0
-Jaccard on train set after seuil for oubli 0 run 0 0.9678806084215219
-Jaccard on test set for oubli 0 run 1 0.8414969336117036
-Jaccard on test set for oubli 5 run 0 0.8181665278021734
-Jaccard on train set before seuil for oubli 5 run 0 1.0
-Jaccard on train set after seuil for oubli 5 run 0 0.9057554243751843
-Jaccard on test set for oubli 5 run 1 0.831956145030634
-Jaccard on test set for oubli 10 run 0 0.8216150307445257
-Jaccard on train set before seuil for oubli 10 run 0 1.0
-Jaccard on train set after seuil for oubli 10 run 0 0.8806520379019208
-Jaccard on test set for oubli 10 run 1 0.833832632023171
-Jaccard on test set for oubli 15 run 0 0.8239761303159596
-Jaccard on train set before seuil for oubli 15 run 0 1.0
-Jaccard on train set after seuil for oubli 15 run 0 0.8356458440363045
-Jaccard on test set for oubli 15 run 1 0.8199074127419049
-Jaccard on test set for oubli 20 run 0 0.8238460516368526
-Jaccard on train set before seuil for oubli 20 run 0 1.0
-Jaccard on train set after seuil for oubli 20 run 0 0.7918800164905482
-Jaccard on test set for oubli 20 run 1 0.8342932062119398
-Jaccard on test set for oubli 25 run 0 0.7983086754382857
-Jaccard on train set before seuil for oubli 25 run 0 1.0
-Jaccard on train set after seuil for oubli 25 run 0 0.7457152645100026
-Jaccard on test set for oubli 25 run 1 0.8320734074802669
-Jaccard on test set for oubli 30 run 0 0.7592108279731905
-Jaccard on train set before seuil for oubli 30 run 0 1.0
-Jaccard on train set after seuil for oubli 30 run 0 0.6969118872066752
-Jaccard on test set for oubli 30 run 1 0.8234710132137217
-Jaccard on test set for oubli 35 run 0 0.7429445012050413
-Jaccard on train set before seuil for oubli 35 run 0 1.0
-Jaccard on train set after seuil for oubli 35 run 0 0.639046834117226
-Jaccard on test set for oubli 35 run 1 0.8236846300546475
-Jaccard on test set for oubli 40 run 0 0.6801920489731453
-Jaccard on train set before seuil for oubli 40 run 0 1.0
-Jaccard on train set after seuil for oubli 40 run 0 0.6106623750428903
-Jaccard on test set for oubli 40 run 1 0.8236163161276302
-Jaccard on test set for oubli 45 run 0 0.647411109911799
-Jaccard on train set before seuil for oubli 45 run 0 1.0
-Jaccard on train set after seuil for oubli 45 run 0 0.5620238429248184
-Jaccard on test set for oubli 45 run 1 0.8248110279047065
-Jaccard on test set for oubli 50 run 0 0.6383526578113472
-Jaccard on train set before seuil for oubli 50 run 0 1.0
-Jaccard on train set after seuil for oubli 50 run 0 0.5226693459052871
-Jaccard on test set for oubli 50 run 1 0.8430618820775794
-Jaccard on test set for oubli 55 run 0 0.5974469488069027
-Jaccard on train set before seuil for oubli 55 run 0 1.0
-Jaccard on train set after seuil for oubli 55 run 0 0.47742422713241156
-Jaccard on test set for oubli 55 run 1 0.8362312635071482
-Jaccard on test set for oubli 60 run 0 0.5735368944190476
-Jaccard on train set before seuil for oubli 60 run 0 1.0
-Jaccard on train set after seuil for oubli 60 run 0 0.42605511451365674
-Jaccard on test set for oubli 60 run 1 0.8285115433323186
-Jaccard on test set for oubli 65 run 0 0.5221738893887719
-Jaccard on train set before seuil for oubli 65 run 0 1.0
-Jaccard on train set after seuil for oubli 65 run 0 0.3804431226892571
-Jaccard on test set for oubli 65 run 1 0.8365744377940123
-Jaccard on test set for oubli 70 run 0 0.476285564474497
-Jaccard on train set before seuil for oubli 70 run 0 1.0
-Jaccard on train set after seuil for oubli 70 run 0 0.33357021918327157
-Jaccard on test set for oubli 70 run 1 0.827833292059531
-Jaccard on test set for oubli 75 run 0 0.43835007617747423
-Jaccard on train set before seuil for oubli 75 run 0 1.0
-Jaccard on train set after seuil for oubli 75 run 0 0.2828888443138543
-Jaccard on test set for oubli 75 run 1 0.8228130496363407
-Jaccard on test set for oubli 80 run 0 0.4102398802838396
-Jaccard on train set before seuil for oubli 80 run 0 1.0
-Jaccard on train set after seuil for oubli 80 run 0 0.23079976126751195
-Jaccard on test set for oubli 80 run 1 0.8239102763248494
-Jaccard on test set for oubli 85 run 0 0.36438665444202856
-Jaccard on train set before seuil for oubli 85 run 0 1.0
-Jaccard on train set after seuil for oubli 85 run 0 0.18318818482027904
-Jaccard on test set for oubli 85 run 1 0.8148322815890153
-Jaccard on test set for oubli 90 run 0 0.2915637984589874
-Jaccard on train set before seuil for oubli 90 run 0 1.0
-Jaccard on train set after seuil for oubli 90 run 0 0.12800825641148528
-Jaccard on test set for oubli 90 run 1 0.807241453707013
-Jaccard on test set for oubli 95 run 0 0.21274520389362236
-Jaccard on train set before seuil for oubli 95 run 0 1.0
-Jaccard on train set after seuil for oubli 95 run 0 0.06364005633010325
-Jaccard on test set for oubli 95 run 1 0.7877717657427322
+Jaccard on test set for oubli 0 run 0 0.8451457436253359
+Jaccard on test set for oubli 5 run 0 0.8207370726506339
+Jaccard on test set for oubli 5 run 1 0.8297870043802177
+Jaccard on test set for oubli 5 run 2 0.8289061100900287
+Jaccard on test set for oubli 10 run 0 0.8291419525876761
+Jaccard on test set for oubli 10 run 1 0.835820028480938
+Jaccard on test set for oubli 10 run 2 0.8293770056925988
+Jaccard on test set for oubli 10 run 3 0.8299355432381462
+Jaccard on test set for oubli 15 run 0 0.8066958249590067
+Jaccard on test set for oubli 15 run 1 0.8419412540549718
+Jaccard on test set for oubli 20 run 0 0.8170036201084679
+Jaccard on test set for oubli 20 run 1 0.836183620914083
+Jaccard on test set for oubli 20 run 2 0.8281551006854878
+Jaccard on test set for oubli 25 run 0 0.8051934124169179
+Jaccard on test set for oubli 25 run 1 0.8290362349065179
+Jaccard on test set for oubli 25 run 2 0.8311754591724521
+Jaccard on test set for oubli 30 run 0 0.7524791910858917
+Jaccard on test set for oubli 30 run 1 0.8192936104024596
+Jaccard on test set for oubli 30 run 2 0.8272774896106909
+Jaccard on test set for oubli 35 run 0 0.7044975572090431
+Jaccard on test set for oubli 35 run 1 0.831884915141498
+Jaccard on test set for oubli 35 run 2 0.8317428564991757
+Jaccard on test set for oubli 40 run 0 0.683094418305395
+Jaccard on test set for oubli 40 run 1 0.8361083663104532
+Jaccard on test set for oubli 45 run 0 0.6836775291830409
+Jaccard on test set for oubli 45 run 1 0.8313296561564507
+Jaccard on test set for oubli 50 run 0 0.6306890601416952
+Jaccard on test set for oubli 50 run 1 0.8342690841643076
+Jaccard on test set for oubli 50 run 2 0.8314834859798974
+Jaccard on test set for oubli 55 run 0 0.5833622038569121
+Jaccard on test set for oubli 55 run 1 0.8346094254712821
+Jaccard on test set for oubli 60 run 0 0.5685052851028949
+Jaccard on test set for oubli 60 run 1 0.8235883787941936
+Jaccard on test set for oubli 65 run 0 0.5205011879995068
+Jaccard on test set for oubli 65 run 1 0.8264211650991008
+Jaccard on test set for oubli 70 run 0 0.4923276568333779
+Jaccard on test set for oubli 70 run 1 0.8206511226363858
+Jaccard on test set for oubli 75 run 0 0.4340076897323217
+Jaccard on test set for oubli 75 run 1 0.8214771246332647
+Jaccard on test set for oubli 80 run 0 0.40935431469384964
+Jaccard on test set for oubli 80 run 1 0.8213439913998039
+Jaccard on test set for oubli 85 run 0 0.352414133168711
+Jaccard on test set for oubli 85 run 1 0.8109109845166533
+Jaccard on test set for oubli 90 run 0 0.2905947323791416
+Jaccard on test set for oubli 90 run 1 0.7967806357198914
+Jaccard on test set for oubli 95 run 0 0.2176694014776728
+Jaccard on test set for oubli 95 run 1 0.7894559814989612
