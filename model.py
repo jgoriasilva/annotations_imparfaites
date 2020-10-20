@@ -140,6 +140,9 @@ elif train_type == 'oubli':
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
 	for proba_oversight in [0,95]:
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 		proba_oversight /= 100
 		# Generate the images
