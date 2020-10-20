@@ -127,8 +127,20 @@ if train_type == 'control':
 	plt.savefig(os.path.join('images','training_control.png'))
 
 elif train_type == 'oubli':
+<<<<<<< Updated upstream
 	distortion_log = open(os.path.join('logs','distortion_oubli.log'),'w')
 	for proba_oversight in range(0, 100, 5):
+=======
+	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
+	
+	modifications = 'y'
+	# modifications = input('make modifications to the outputs? ')
+	runs_train = 1
+	# runs_train = int(input('how many training runs? '))
+	# for proba_oversight in range(0, 100, 5):
+	for proba_oversight in [0,95]:
+>>>>>>> Stashed changes
 		proba_oversight /= 100
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -148,6 +160,177 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+<<<<<<< Updated upstream
+=======
+	
+		for run in range(runs_train):
+			continue_train = 0
+			
+			K.clear_session()
+			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
+			model.compile(loss=loss_func, optimizer=opt)
+			print('oubli {}, run {}, patience {}'.format(proba_oversight,run,patience))
+			# Load weights
+			model.load_weights(os.path.join('weights','start_weights.h5'))
+  			# Training
+  			# Save training metrics regularly
+			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+str(run)+'.log'))
+	  		# Early stopping
+			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
+			verbose = 2
+			history = model.fit(X_train, Y_train,
+                      batch_size=batch_size,
+                      epochs=nb_epoch,
+                      validation_data=(X_val, Y_val),
+                      shuffle=True,
+                      verbose=verbose,
+                      callbacks=[es, csv_logger])
+			
+			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
+			
+			plt.figure()
+			plt.title('Predictions of the network vs. truth for the test set, forgetting probability of {}%'.format(proba_oversight))
+			for i in range(5):
+				plt.subplot(5,4,i*4+1).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*3])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+2).title.set_text('truth')
+				plt.imshow(Y_test[i*3])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+3).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i+1)*5])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,4,i*4+4).title.set_text('truth')
+				plt.imshow(Y_test[(i+1)*5])
+				plt.axis('off')	
+			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
+			plt.clf()
+			plt.close()
+			
+			for image in model.predict(X_test):
+				black = 0
+				gray = 0
+				for row in image:
+					for pixel in row:
+						if pixel[:]*256 < 20:
+							black += 1
+						if pixel[:]*256 < 240:
+							gray += 1
+				
+				rate = float(black)/float(gray)
+				if(rate < 0.80):
+					continue_train = 1
+					break
+			
+			if(continue_train == 0):
+				break
+			
+			'''
+			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
+			'''
+			
+			if modifications == 'y':
+				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
+				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_train_tmp = Y_train[:,:,:,:]
+				for img in Y_train:
+					threshold = filters.threshold_otsu(img)
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+								
+				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
+				Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_val_tmp = Y_val[:,:,:,:]
+				for img in Y_val:
+					threshold = filters.threshold_otsu(img)
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+
+			elif modifications == 'n':
+				Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_train = model.predict(X_train)[:,:,:,:]
+			
+				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
+				Y_val = model.predict(X_val)[:,:,:,:]
+			
+			'''
+			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:])))
+
+			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
+				Y_train = Y_train_tmp
+				Y_val = Y_val_tmp
+				quit_train = 1
+			
+			'''
+			
+			# patience -= 2
+		
+		# serialize weights to HDF5
+		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
+		print('Saved model oubli '+oubli_str+' to disk')
+		'''
+		# Training curve
+		plt.rcParams['figure.figsize'] = (10.0, 8.0)
+		plt.plot(history.epoch, history.history['loss'], label='train')
+		plt.plot(history.epoch, history.history['val_loss'], label='val')
+		plt.title('Training performance')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend()
+		plt.ylim(0.0, 0.9)
+		plt.savefig(os.path.join('images','training','training_curve_oubli'+param_str+'.png'))
+		plt.cla()	
+		plt.clf()
+		plt.close()
+		'''
+ 	
+		# Distortion between gt and labels 	
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+	distortion_log.close()
+	jaccard_log.close()
+
+elif train_type == 'taille':	
+	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
+	for taille in range(20, 110,5):
+		taille /= 10
+		param_str = str(taille)
+		# Generate the images
+		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
+		for i in range(img_number):
+			im3=img_imp_gt[i,:,:,0]
+			n_rings = data[i, :, 0].sum()
+			for j in range(n_rings):
+				if data[i][j][0]==1:
+					x=data[i][j][1]
+					y=data[i][j][2]
+					r1=taille
+					r2=r1*rad_ratio
+					v=data[i][j][4]
+					draw_ring(im3,x,y,r1,r2,1)
+		'''
+		plt.figure()
+		plt.subplot(1,2,1)
+		plt.imshow(img_imp_gt[2])
+		plt.subplot(1,2,2)
+		plt.imshow(img_gt[2])
+		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
+		'''
+
+		# Labels
+		Y_train=img_imp_gt[:n_train,:,:,:]
+		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
+		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+>>>>>>> Stashed changes
 
 		# Load weights
 		model.load_weights(os.path.join('weights','start_weights.h5'))
