@@ -11,9 +11,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] ='0'
 
 import numpy as np
 import matplotlib.pyplot as plt
+from skimage import filters
+from skimage import exposure
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
+from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 
 # matplotlib default values
@@ -127,10 +130,7 @@ if train_type == 'control':
 	plt.savefig(os.path.join('images','training_control.png'))
 
 elif train_type == 'oubli':
-<<<<<<< Updated upstream
 	distortion_log = open(os.path.join('logs','distortion_oubli.log'),'w')
-	for proba_oversight in range(0, 100, 5):
-=======
 	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	
@@ -140,20 +140,8 @@ elif train_type == 'oubli':
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
 	for proba_oversight in [0,95]:
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 		proba_oversight /= 100
+		oubli_str = str(proba_oversight)
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -172,9 +160,7 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
-<<<<<<< Updated upstream
-=======
-	
+		
 		for run in range(runs_train):
 			continue_train = 0
 			
@@ -337,50 +323,3 @@ elif train_type == 'taille':
 		plt.imshow(img_gt[2])
 		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
 		'''
-
-		# Labels
-		Y_train=img_imp_gt[:n_train,:,:,:]
-		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
-		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
->>>>>>> Stashed changes
-
-		# Load weights
-		model.load_weights(os.path.join('weights','start_weights.h5'))
-
-  		# Training
-  		# Save training metrics regularly
-		param_str = str(int(100*proba_oversight))
-		csv_logger = CSVLogger(os.path.join('logs','training_log_oubli'+param_str+'.log'))
-  		# Early stopping
-		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
-		verbose = 2
-		history = model.fit(X_train, Y_train,
-                      batch_size=batch_size,
-                      epochs=nb_epoch,
-                      validation_data=(X_val, Y_val),
-                      shuffle=True,
-                      verbose=verbose,
-                      callbacks=[es, csv_logger])
-  
-  		# serialize weights to HDF5
-		model.save_weights(os.path.join('weights','model_oubli_'+param_str+'.h5'))
-		print('Saved model oubli '+param_str+' to disk')
-		
-		# Training curve
-		plt.rcParams['figure.figsize'] = (10.0, 8.0)
-		plt.plot(history.epoch, history.history['loss'], label='train')
-		plt.plot(history.epoch, history.history['val_loss'], label='val')
-		plt.title('Training performance')
-		plt.ylabel('loss')
-		plt.xlabel('epoch')
-		plt.legend()
-		plt.ylim(0.0, 0.9)
-		plt.savefig(os.path.join('images','training_curve_oubli'+param_str+'.png'))
-		plt.cla()	
-		plt.clf()
-		plt.close()
-		
- 	
-		# Distortion between gt and labels 	
-		distortion_log.write('Distortion between ground truth and labels for oubli ' + str(proba_oversight) + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
-	distortion_log.close()
