@@ -139,9 +139,9 @@ elif train_type == 'oubli':
 	runs_train = 1
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
-	for proba_oversight in [0,95]:
+	for proba_oversight in [50]:
 		proba_oversight /= 100
-		oubli_str = str(proba_oversight)
+		oubli_str = str(int(proba_oversight*100))
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -156,11 +156,36 @@ elif train_type == 'oubli':
 					v=data[i][j][4]
 					if np.random.rand() > proba_oversight :
 						draw_ring(im3,x,y,r1,r2,1)
+	
 		# Labels
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
 		
+		plt.figure()
+		# plt.title('Predictions of the network vs. truth for the test set, forgetting probability of {}%'.format(proba_oversight))
+		for i in range(5):
+			plt.subplot(5,4,i*4+1).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+2).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+3).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+4).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','oubli','initial'+oubli_str+'.png'))
+		plt.clf()
+		plt.close()
+					
+		break
+	
 		for run in range(runs_train):
 			continue_train = 0
 			
