@@ -94,7 +94,7 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'oubli'
+train_type = 'taille'
 #train_type = input('Train type [control/oubli/taille]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
@@ -298,9 +298,13 @@ elif train_type == 'oubli':
 
 elif train_type == 'taille':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
+	
 	for taille in range(20, 110,5):
 		taille /= 10
-		param_str = str(taille)
+		taille_str = str(taille)
+		
+		patience = 20
+	
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -327,16 +331,24 @@ elif train_type == 'taille':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+		
+		K.clear_session()
+		model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
+		model.compile(loss=loss_func, optimizer=opt)
 
+		model.load_weights(os.path.join('weights','taille','model_taille_'+taille_str+'.h5'))
+		
+		'''
 		# Load weights
 		model.load_weights(os.path.join('weights','start_weights.h5'))
 
-  		# Training
+  		
+		# Training
   		# Save training metrics regularly
 		csv_logger = CSVLogger(os.path.join('logs','training','training_log_taille'+param_str+'.log'))
   		# Early stopping
-		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=20, mode='auto', restore_best_weights=True)
-		verbose = 0
+		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
+		verbose = 2
 		history = model.fit(X_train, Y_train,
                       batch_size=batch_size,
                       epochs=nb_epoch,
@@ -348,6 +360,32 @@ elif train_type == 'taille':
 		model.save_weights(os.path.join('weights','taille','model_taille_'+param_str+'.h5'))
 		print('Saved model taille '+param_str+' to disk')
 		
+		'''
+
+		run = 0
+		
+		plt.figure()
+		for i in range(5):
+			plt.subplot(5,4,i*4+1).title.set_text('prediction')
+			plt.imshow(model.predict(X_test)[i*3])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+2).title.set_text('ground truth')
+			plt.imshow(Y_test[i*3])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+3).title.set_text('prediction')
+			plt.imshow(model.predict(X_test)[(i+1)*5])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,4,i*4+4).title.set_text('ground truth')
+			plt.imshow(Y_test[(i+1)*5])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
+		plt.clf()
+		plt.close()
+		
+		'''	
 		# Training curve
 		plt.rcParams['figure.figsize'] = (10.0, 8.0)
 		plt.plot(history.epoch, history.history['loss'], label='train')
@@ -361,8 +399,8 @@ elif train_type == 'taille':
 		plt.cla()	
 		plt.clf()
 		plt.close()
-		
+		'''
  		
 		# Distortion between gt and labels 	
-		distortion_log.write('Jaccard between ground truth and labels for oubli ' + param_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + taille_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
 	distortion_log.close()
