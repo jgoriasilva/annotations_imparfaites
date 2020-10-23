@@ -1,18 +1,18 @@
-Jaccard on test set for taille 2.0 = 0.010005725390942823
-Jaccard on test set for taille 2.5 = 0.0958208929687447
-Jaccard on test set for taille 3.0 = 0.12595285861181077
-Jaccard on test set for taille 3.5 = 0.27497118660518016
-Jaccard on test set for taille 4.0 = 0.3635293183120676
-Jaccard on test set for taille 4.5 = 0.48824655548695367
-Jaccard on test set for taille 5.0 = 0.4759691891431539
-Jaccard on test set for taille 5.5 = 0.534814968624675
-Jaccard on test set for taille 6.0 = 0.5277192443531918
-Jaccard on test set for taille 6.5 = 0.41573095838090285
-Jaccard on test set for taille 7.0 = 0.4168914866603657
-Jaccard on test set for taille 7.5 = 0.31403131708807047
-Jaccard on test set for taille 8.0 = 0.303451517179278
-Jaccard on test set for taille 8.5 = 0.21619266019916827
-Jaccard on test set for taille 9.0 = 0.1859820689545214
-Jaccard on test set for taille 9.5 = 0.17951546284126035
-Jaccard on test set for taille 10.0 = 0.18000025437731174
-Jaccard on test set for taille 10.5 = 0.1457105083271927
+Jaccard on test set for oubli 2.0 run 0 0.012291183181335872
+Jaccard on test set for oubli 2.5 run 0 0.10288016990266514
+Jaccard on test set for oubli 3.0 run 0 0.1285203779534721
+Jaccard on test set for oubli 3.5 run 0 0.2637548758585163
+Jaccard on test set for oubli 4.0 run 0 0.36420922296604447
+Jaccard on test set for oubli 4.5 run 0 0.5276146546631892
+Jaccard on test set for oubli 5.0 run 0 0.520483683035495
+Jaccard on test set for oubli 5.5 run 0 0.5734468742563725
+Jaccard on test set for oubli 6.0 run 0 0.5324999521506728
+Jaccard on test set for oubli 6.5 run 0 0.4940390569310132
+Jaccard on test set for oubli 7.0 run 0 0.48710102083779305
+Jaccard on test set for oubli 7.5 run 0 0.427004218251808
+Jaccard on test set for oubli 8.0 run 0 0.2983740896457784
+Jaccard on test set for oubli 8.5 run 0 0.2703729969643273
+Jaccard on test set for oubli 9.0 run 0 0.25682943175762224
+Jaccard on test set for oubli 9.5 run 0 0.2331832455275938
+Jaccard on test set for oubli 10.0 run 0 0.17723086407555158
+Jaccard on test set for oubli 10.5 run 0 0.1709566869996083

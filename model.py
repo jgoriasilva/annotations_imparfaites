@@ -298,6 +298,7 @@ elif train_type == 'oubli':
 
 elif train_type == 'taille':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_taille.log'),'w')
 	
 	for taille in range(20, 110,5):
 		taille /= 10
@@ -315,7 +316,7 @@ elif train_type == 'taille':
 					x=data[i][j][1]
 					y=data[i][j][2]
 					r1=taille
-					r2=r1*rad_ratio
+					r2=int(r1*rad_ratio)
 					v=data[i][j][4]
 					draw_ring(im3,x,y,r1,r2,1)
 		'''
@@ -327,6 +328,10 @@ elif train_type == 'taille':
 		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
 		'''
 
+		run = 0
+		
+		print('taille {}, run {}, patience {}'.format(taille,run,patience))
+		
 		# Labels
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
@@ -336,16 +341,13 @@ elif train_type == 'taille':
 		model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 		model.compile(loss=loss_func, optimizer=opt)
 
-		model.load_weights(os.path.join('weights','taille','model_taille_'+taille_str+'.h5'))
-		
-		'''
 		# Load weights
 		model.load_weights(os.path.join('weights','start_weights.h5'))
 
   		
 		# Training
   		# Save training metrics regularly
-		csv_logger = CSVLogger(os.path.join('logs','training','training_log_taille'+param_str+'.log'))
+		csv_logger = CSVLogger(os.path.join('logs','training','taille','training_log_taille_'+taille_str+'.log'))
   		# Early stopping
 		es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
 		verbose = 2
@@ -357,12 +359,11 @@ elif train_type == 'taille':
                       verbose=verbose,
                       callbacks=[es, csv_logger])
   		# serialize weights to HDF5
-		model.save_weights(os.path.join('weights','taille','model_taille_'+param_str+'.h5'))
-		print('Saved model taille '+param_str+' to disk')
-		
-		'''
+		model.save_weights(os.path.join('weights','taille','model_taille_'+taille_str+'.h5'))
+		print('Saved model taille '+taille_str+' to disk')
 
-		run = 0
+		jaccard_log.write('Jaccard on test set for oubli '+taille_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+		print('Jaccard on test set for oubli '+taille_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 		
 		plt.figure()
 		for i in range(5):
@@ -404,3 +405,4 @@ elif train_type == 'taille':
 		# Distortion between gt and labels 	
 		distortion_log.write('Jaccard between ground truth and labels for oubli ' + taille_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
 	distortion_log.close()
+	jaccard_log.close()
