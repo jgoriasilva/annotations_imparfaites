@@ -58,7 +58,6 @@ if train_type == 'oubli':
 	plt.plot(data_1[:,0],data_1[:,1],'o',label='run 1')
 	plt.plot(data_2[:,0],data_2[:,1],'o',label='run 2')
 	plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
-	plt.legend()
 elif train_type == 'taille':
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
 plt.xlabel('Jaccard between ground truth labels and labels given to the network')
@@ -68,6 +67,7 @@ plt.plot([0,0.6],[0,0.6], label='y = x')
 plt.xlim(0)
 plt.ylim(0)
 plt.grid()
+plt.legend()
 plt.savefig(os.path.join('images','graph_'+train_type+'.png'))
 plt.show()
 
