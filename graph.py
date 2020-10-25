@@ -60,10 +60,11 @@ if train_type == 'oubli':
 	plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
 	plt.legend()
 elif train_type == 'taille':
-	plt.plot(data[0,:],data[1,:],'o',)
+	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
 plt.xlabel('Jaccard between ground truth labels and labels given to the network')
 plt.ylabel('Jaccard between ground truth labels and outputs of the network')
 plt.title('Relation between imperfect labeling and network performance')
+plt.plot([0,0.6],[0,0.6], label='y = x')
 plt.xlim(0)
 plt.ylim(0)
 plt.grid()
