@@ -130,16 +130,15 @@ if train_type == 'control':
 	plt.savefig(os.path.join('images','training_control.png'))
 
 elif train_type == 'oubli':
-	distortion_log = open(os.path.join('logs','distortion_oubli.log'),'w')
-	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
-	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
+	#distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
+	#jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 1
+	runs_train = 2
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
-	for proba_oversight in [50]:
+	for proba_oversight in [0,95]:
 		proba_oversight /= 100
 		oubli_str = str(int(proba_oversight*100))
 		# Generate the images
@@ -161,30 +160,36 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
-		
+
 		plt.figure()
-		# plt.title('Predictions of the network vs. truth for the test set, forgetting probability of {}%'.format(proba_oversight))
+		plt.title('Inputs, predictions of the network and ground truth for test set, forgetting probability of {}%'.format(proba_oversight))
 		for i in range(5):
-			plt.subplot(5,4,i*4+1).title.set_text('imperfect label')
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
 			plt.imshow(Y_train[i])
 			plt.axis('off')
 		for i in range(5):
-			plt.subplot(5,4,i*4+2).title.set_text('ground truth')
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
 			plt.imshow(img_gt[i])
 			plt.axis('off')
 		for i in range(5):
-			plt.subplot(5,4,i*4+3).title.set_text('imperfect label')
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
 			plt.imshow(Y_val[i])
 			plt.axis('off')
 		for i in range(5):
-			plt.subplot(5,4,i*4+4).title.set_text('ground truth')
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
 			plt.imshow(img_gt[n_train+i])
 			plt.axis('off')	
-		plt.savefig(os.path.join('images','oubli','initial'+oubli_str+'.png'))
+		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
 		plt.clf()
 		plt.close()
-					
-		break
 	
 		for run in range(runs_train):
 			continue_train = 0
@@ -209,31 +214,39 @@ elif train_type == 'oubli':
                       verbose=verbose,
                       callbacks=[es, csv_logger])
 			
-			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			#jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
-			
+
 			plt.figure()
-			plt.title('Predictions of the network vs. truth for the test set, forgetting probability of {}%'.format(proba_oversight))
+			# plt.title('Inputs, predictions of the network and ground truth for test set, forgetting probability of {}%'.format(proba_oversight))
 			for i in range(5):
-				plt.subplot(5,4,i*4+1).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[i*3])
+				plt.subplot(5,6,i*6+1).title.set_text('input')
+				plt.imshow(X_test[i*2])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+2).title.set_text('truth')
-				plt.imshow(Y_test[i*3])
+				plt.subplot(5,6,i*6+2).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*2])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+3).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i+1)*5])
+				plt.subplot(5,6,i*6+3).title.set_text('truth')
+				plt.imshow(Y_test[i*2])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+4).title.set_text('truth')
-				plt.imshow(Y_test[(i+1)*5])
+				plt.subplot(5,6,i*6+4).title.set_text('input')
+				plt.imshow(X_test[(i+1)*6])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+5).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i+1)*6])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+6).title.set_text('truth')
+				plt.imshow(Y_test[(i+1)*6])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
-			
+			'''
 			for image in model.predict(X_test):
 				black = 0
 				gray = 0
@@ -251,14 +264,14 @@ elif train_type == 'oubli':
 			
 			if(continue_train == 0):
 				break
-			
+			'''
 			'''
 			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
 			'''
-			
+			'''
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
 				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -284,6 +297,7 @@ elif train_type == 'oubli':
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
 			'''
+			'''
 			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
@@ -295,12 +309,12 @@ elif train_type == 'oubli':
 				quit_train = 1
 			
 			'''
-			
 			# patience -= 2
-		
+		'''
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
+		'''
 		'''
 		# Training curve
 		plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -318,9 +332,9 @@ elif train_type == 'oubli':
 		'''
  	
 		# Distortion between gt and labels 	
-		distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
-	distortion_log.close()
-	jaccard_log.close()
+		#distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+	#distortion_log.close()
+	#jaccard_log.close()
 
 elif train_type == 'taille':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
