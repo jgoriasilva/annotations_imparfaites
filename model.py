@@ -94,8 +94,7 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'oubli'
-# train_type = input('Train type [control/oubli]: ')
+train_type = input('Train type [control/oubli/taille]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -340,7 +339,7 @@ elif train_type == 'taille':
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
 	for taille in range(20, 110,5):
 		taille /= 10
-		param_str = str(taille)
+		taille_str = str(taille)
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
 		for i in range(img_number):
@@ -351,14 +350,41 @@ elif train_type == 'taille':
 					x=data[i][j][1]
 					y=data[i][j][2]
 					r1=taille
-					r2=r1*rad_ratio
+					r2=int(r1*rad_ratio)
 					v=data[i][j][4]
 					draw_ring(im3,x,y,r1,r2,1)
-		'''
+
+		# Labels
+		Y_train=img_imp_gt[:n_train,:,:,:]
+		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
+		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+		
 		plt.figure()
-		plt.subplot(1,2,1)
-		plt.imshow(img_imp_gt[2])
-		plt.subplot(1,2,2)
-		plt.imshow(img_gt[2])
-		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
-		'''
+		plt.title('Inputs, predictions of the network and ground truth for test set, fixed rayon size of {}%'.format(taille))
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','taille','initial_'+taille_str+'.png'))
+		plt.clf()
+		plt.close()
