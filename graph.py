@@ -47,10 +47,10 @@ elif train_type == 'taille':
 plt.figure()
 if train_type == 'oubli':
 	plt.plot([0,1],[0,1],'--', label='y = x')
-	plt.plot(data_0[:,0],data_0[:,1],'o',label='run 0')
-	plt.plot(data_1[:,0],data_1[:,1],'o',label='run 1')
-	plt.plot(data_2[:,0],data_2[:,1],'o',label='run 2')
-	plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
+	plt.plot(data_0[:,0],data_0[:,1],'o',label='network outputs')
+	# plt.plot(data_1[:,0],data_1[:,1],'o',label='run 1')
+	# plt.plot(data_2[:,0],data_2[:,1],'o',label='run 2')
+	# plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
 elif train_type == 'taille':
 	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
