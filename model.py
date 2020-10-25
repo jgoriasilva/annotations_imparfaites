@@ -134,7 +134,7 @@ elif train_type == 'oubli':
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 2
+	runs_train = 1
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
 	for proba_oversight in [0,95]:
@@ -220,27 +220,27 @@ elif train_type == 'oubli':
 			# plt.title('Inputs, predictions of the network and ground truth for test set, forgetting probability of {}%'.format(proba_oversight))
 			for i in range(5):
 				plt.subplot(5,6,i*6+1).title.set_text('input')
-				plt.imshow(X_test[i*2])
+				plt.imshow(X_test[i*4])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+2).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[i*2])
+				plt.imshow(model.predict(X_test)[i*4])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+3).title.set_text('truth')
-				plt.imshow(Y_test[i*2])
+				plt.imshow(Y_test[i*4])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_test[(i+1)*6])
+				plt.imshow(X_test[(i)*9])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+5).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i+1)*6])
+				plt.imshow(model.predict(X_test)[(i)*9])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+6).title.set_text('truth')
-				plt.imshow(Y_test[(i+1)*6])
+				plt.imshow(Y_test[(i)*9])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
