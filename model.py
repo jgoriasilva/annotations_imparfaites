@@ -134,7 +134,7 @@ elif train_type == 'oubli':
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 1
+	runs_train = 2
 	# runs_train = int(input('how many training runs? '))
 	# for proba_oversight in range(0, 100, 5):
 	for proba_oversight in [0,95]:
@@ -245,6 +245,7 @@ elif train_type == 'oubli':
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
+			
 			'''
 			for image in model.predict(X_test):
 				black = 0
@@ -270,7 +271,6 @@ elif train_type == 'oubli':
 			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
 			'''
-			'''
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
 				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -295,7 +295,6 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
-			'''
 			'''
 			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
