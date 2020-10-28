@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='1'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -94,7 +94,9 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = input('Train type [control/oubli/taille]: ')
+train_type = 'oubli'
+# train_type = input('Train type [control/oubli/taille]: ')
+
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -129,15 +131,15 @@ if train_type == 'control':
 	plt.savefig(os.path.join('images','training_control.png'))
 
 elif train_type == 'oubli':
-	#distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
-	#jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
+	distortion_log = open(os.path.join('logs','distortion','distortion_oubli.log'),'w')
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_oubli.log'),'w')
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 2
+	runs_train = 1
 	# runs_train = int(input('how many training runs? '))
-	# for proba_oversight in range(0, 100, 5):
-	for proba_oversight in [0,95]:
+	for proba_oversight in range(0, 100, 5):
+	# for proba_oversight in [0,95]:
 		proba_oversight /= 100
 		oubli_str = str(int(proba_oversight*100))
 		# Generate the images
@@ -213,7 +215,7 @@ elif train_type == 'oubli':
                       verbose=verbose,
                       callbacks=[es, csv_logger])
 			
-			#jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			jaccard_log.write('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 
 			plt.figure()
@@ -265,14 +267,11 @@ elif train_type == 'oubli':
 			if(continue_train == 0):
 				break
 			'''
-			'''
-			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
-			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
-			jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
-			print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
-			'''
+
 			if modifications == 'y':
 				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
+				jaccard_log.write('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
+				print('Jaccard on train set before seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))) 
 				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
 				Y_train_tmp = Y_train[:,:,:,:]
 				for img in Y_train:
@@ -295,24 +294,21 @@ elif train_type == 'oubli':
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
 			
-			'''
-			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
-			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
-			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
-			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:])))
+			jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_gt[:n_train,:,:,:])))
 
+			'''
 			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
 				Y_train = Y_train_tmp
 				Y_val = Y_val_tmp
 				quit_train = 1
-			
 			'''
+			
 			# patience -= 2
-		'''
 		# serialize weights to HDF5
 		model.save_weights(os.path.join('weights','oubli','model_oubli_'+oubli_str+'.h5'))
 		print('Saved model oubli '+oubli_str+' to disk')
-		'''
+		
 		'''
 		# Training curve
 		plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -330,9 +326,9 @@ elif train_type == 'oubli':
 		'''
  	
 		# Distortion between gt and labels 	
-		#distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
-	#distortion_log.close()
-	#jaccard_log.close()
+		distortion_log.write('Jaccard between ground truth and labels for oubli ' + oubli_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+	distortion_log.close()
+	jaccard_log.close()
 
 elif train_type == 'taille':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_taille.log'),'w')
