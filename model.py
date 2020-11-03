@@ -187,7 +187,7 @@ elif train_type == 'oubli':
 			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
 			plt.imshow(img_gt[n_train+i])
 			plt.axis('off')	
-		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
+		plt.savefig(os.path.join('images','oubli','initial_oubli_'+oubli_str+'.png'))
 		plt.clf()
 		plt.close()
 	
@@ -400,7 +400,7 @@ elif train_type == 'taille':
 			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
 			plt.imshow(img_gt[n_train+i])
 			plt.axis('off')	
-		plt.savefig(os.path.join('images','taille','initial_'+taille_str+'.png'))
+		plt.savefig(os.path.join('images','taille','initial_taille_'+taille_str+'.png'))
 		plt.clf()
 		plt.close()
 
@@ -536,7 +536,7 @@ elif train_type == 'deplace':
 			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
 			plt.imshow(img_gt[n_train+i])
 			plt.axis('off')	
-		plt.savefig(os.path.join('images','deplace','initial_'+deplace_str+'.png'))
+		plt.savefig(os.path.join('images','deplace','initial_deplace_'+deplace_str+'.png'))
 		plt.clf()
 		plt.close()
 	
