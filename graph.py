@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-train_type = input('train type? ')
+train_type = input('train type[oubli/taille/deplace]? ')
 distortion_log = open(os.path.join('logs','distortion','distortion_'+train_type+'.log'),'r')
 jaccard_log = open(os.path.join('logs','jaccard','jaccard_'+train_type+'.log'),'r')
 distortion_data = []
@@ -47,7 +47,7 @@ if train_type == 'oubli':
 	data_2 = np.array(data_2)
 	data_3 = np.array(data_3)
 
-elif train_type == 'taille':
+elif train_type == 'taille' or train_type == 'deplace':
 	for line in jaccard_log:
 		jaccard_data.append(float(line.split(' ')[-1]))
 	data = np.array([distortion_data,jaccard_data])
@@ -61,6 +61,9 @@ if train_type == 'oubli':
 	plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
 elif train_type == 'taille':
 	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
+	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
+elif train_type == 'deplace':
+	plt.plot([0,0.8],[0,0.8],'--', label='y = x')
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
 plt.xlabel('Jaccard between ground truth labels and labels given to the network')
 plt.ylabel('Jaccard between ground truth labels and outputs of the network')
