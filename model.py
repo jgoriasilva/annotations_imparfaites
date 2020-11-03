@@ -232,15 +232,15 @@ elif train_type == 'oubli':
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_test[(i)*9])
+				plt.imshow(X_test[(i+1)*18])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+5).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i)*9])
+				plt.imshow(model.predict(X_test)[(i+1)*18])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+6).title.set_text('truth')
-				plt.imshow(Y_test[(i)*9])
+				plt.imshow(Y_test[(i+1)*18])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
@@ -446,15 +446,15 @@ elif train_type == 'taille':
 			plt.axis('off')
 		for i in range(5):
 			plt.subplot(5,6,i*6+4).title.set_text('input')
-			plt.imshow(X_test[(i)*9])
+			plt.imshow(X_test[(i+1)*18])
 			plt.axis('off')
 		for i in range(5):
 			plt.subplot(5,6,i*6+5).title.set_text('prediction')
-			plt.imshow(model.predict(X_test)[(i)*9])
+			plt.imshow(model.predict(X_test)[(i+1)*18])
 			plt.axis('off')
 		for i in range(5):
 			plt.subplot(5,6,i*6+6).title.set_text('truth')
-			plt.imshow(Y_test[(i)*9])
+			plt.imshow(Y_test[(i+1)*18])
 			plt.axis('off')	
 		plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
 		plt.clf()
@@ -581,15 +581,15 @@ elif train_type == 'deplace':
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_test[(i)*9])
+				plt.imshow(X_test[(i+1)*18])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+5).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i)*9])
+				plt.imshow(model.predict(X_test)[(i+1)*18])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+6).title.set_text('truth')
-				plt.imshow(Y_test[(i)*9])
+				plt.imshow(Y_test[(i+1)*18])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','deplace','deplace_'+deplace_str+'_run_'+str(run)+'.png'))
 			plt.clf()
