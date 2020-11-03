@@ -94,7 +94,7 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'taille'
+train_type = 'oubli'
 # train_type = input('Train type [control/oubli/taille/deplace]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
@@ -135,7 +135,7 @@ elif train_type == 'oubli':
 	
 	modifications = 'y'
 	# modifications = input('make modifications to the outputs? ')
-	runs_train = 5
+	runs_train = 2
 	# runs_train = int(input('how many training runs? '))
 	for proba_oversight in range(0, 100, 5):
 		proba_oversight /= 100
@@ -246,6 +246,7 @@ elif train_type == 'oubli':
 			plt.clf()
 			plt.close()
 			
+			'''
 			for image in model.predict(X_test):
 				black = 0
 				gray = 0
@@ -263,7 +264,7 @@ elif train_type == 'oubli':
 			
 			if(continue_train == 0):
 				break
-			
+			'''
 			'''
 			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
