@@ -160,6 +160,36 @@ elif train_type == 'oubli':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+
+		plt.figure()
+		plt.title('Inputs, predictions of the network and ground truth for test set, forgetting probability of {}%'.format(proba_oversight))
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','oubli','initial_'+oubli_str+'.png'))
+		plt.clf()
+		plt.close()
 	
 		for run in range(runs_train):
 			continue_train = 0
@@ -189,20 +219,28 @@ elif train_type == 'oubli':
 			
 			plt.figure()
 			for i in range(5):
-				plt.subplot(5,4,i*4+1).title.set_text('prédiction')
-				plt.imshow(model.predict(X_test)[i*3])
+				plt.subplot(5,6,i*6+1).title.set_text('input')
+				plt.imshow(X_test[i*4])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+2).title.set_text('vérité')
-				plt.imshow(Y_test[i*3])
+				plt.subplot(5,6,i*6+2).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*4])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+3).title.set_text('prédiction')
-				plt.imshow(model.predict(X_test)[(i+1)*5])
+				plt.subplot(5,6,i*6+3).title.set_text('truth')
+				plt.imshow(Y_test[i*4])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,4,i*4+4).title.set_text('vérité')
-				plt.imshow(Y_test[(i+1)*5])
+				plt.subplot(5,6,i*6+4).title.set_text('input')
+				plt.imshow(X_test[(i)*9])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+5).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i)*9])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+6).title.set_text('truth')
+				plt.imshow(Y_test[(i)*9])
 				plt.axis('off')	
 			plt.savefig(os.path.join('images','oubli','oubli_'+oubli_str+'_run_'+str(run)+'.png'))
 			plt.clf()
@@ -337,13 +375,41 @@ elif train_type == 'taille':
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
 		
+		plt.figure()
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','taille','initial_'+taille_str+'.png'))
+		plt.clf()
+		plt.close()
+
 		K.clear_session()
 		model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 		model.compile(loss=loss_func, optimizer=opt)
 
 		# Load weights
 		model.load_weights(os.path.join('weights','start_weights.h5'))
-
   		
 		# Training
   		# Save training metrics regularly
@@ -366,25 +432,33 @@ elif train_type == 'taille':
 		print('Jaccard on test set for oubli '+taille_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 		
 		plt.figure()
-		for i in range(5):
-			plt.subplot(5,4,i*4+1).title.set_text('prediction')
-			plt.imshow(model.predict(X_test)[i*3])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+2).title.set_text('ground truth')
-			plt.imshow(Y_test[i*3])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+3).title.set_text('prediction')
-			plt.imshow(model.predict(X_test)[(i+1)*5])
-			plt.axis('off')
-		for i in range(5):
-			plt.subplot(5,4,i*4+4).title.set_text('ground truth')
-			plt.imshow(Y_test[(i+1)*5])
-			plt.axis('off')	
-		plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
-		plt.clf()
-		plt.close()
+			for i in range(5):
+				plt.subplot(5,6,i*6+1).title.set_text('input')
+				plt.imshow(X_test[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+2).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+3).title.set_text('truth')
+				plt.imshow(Y_test[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+4).title.set_text('input')
+				plt.imshow(X_test[(i)*9])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+5).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i)*9])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+6).title.set_text('truth')
+				plt.imshow(Y_test[(i)*9])
+				plt.axis('off')	
+			plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
+			plt.clf()
+			plt.close()
 		
 		'''	
 		# Training curve
@@ -436,6 +510,35 @@ elif train_type == 'deplace':
 		Y_train=img_imp_gt[:n_train,:,:,:]
 		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
 		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+
+		plt.figure()
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','deplace','initial_'+deplace_str+'.png'))
+		plt.clf()
+		plt.close()
 	
 		for run in range(runs_train):
 			continue_train = 0
@@ -462,37 +565,35 @@ elif train_type == 'deplace':
 			
 			jaccard_log.write('Jaccard on test set for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
 			print('Jaccard on test set for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
-			
+
 			plt.figure()
-			plt.title('Inputs, predictions of the network and ground truth for test set, maximum deplacement of {}%'.format(deplace))
 			for i in range(5):
 				plt.subplot(5,6,i*6+1).title.set_text('input')
-				plt.imshow(X_train[i])
+				plt.imshow(X_test[i*4])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
-				plt.imshow(Y_train[i])
+				plt.subplot(5,6,i*6+2).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*4])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,6,i*6+3).title.set_text('ground truth')
-				plt.imshow(img_gt[i])
+				plt.subplot(5,6,i*6+3).title.set_text('truth')
+				plt.imshow(Y_test[i*4])
 				plt.axis('off')
 			for i in range(5):
 				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_val[i])
+				plt.imshow(X_test[(i)*9])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
-				plt.imshow(Y_val[i])
+				plt.subplot(5,6,i*6+5).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i)*9])
 				plt.axis('off')
 			for i in range(5):
-				plt.subplot(5,6,i*6+6).title.set_text('ground truth')
-				plt.imshow(img_gt[n_train+i])
+				plt.subplot(5,6,i*6+6).title.set_text('truth')
+				plt.imshow(Y_test[(i)*9])
 				plt.axis('off')	
-			plt.savefig(os.path.join('images','deplace','initial_'+deplace_str+'.png'))
+			plt.savefig(os.path.join('images','deplace','deplace_'+deplace_str+'_run_'+str(run)+'.png'))
 			plt.clf()
 			plt.close()
-			
 
 			'''
 			for image in model.predict(X_test):
