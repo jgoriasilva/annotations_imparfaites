@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='0'
+os.environ["CUDA_VISIBLE_DEVICES"] ='2'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -95,7 +95,7 @@ X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
 # train_type = 'taille'
-train_type = input('Train type [control/oubli/taille]: ')
+train_type = input('Train type [control/oubli/taille/deplace]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -172,7 +172,7 @@ elif train_type == 'oubli':
 			model.load_weights(os.path.join('weights','start_weights.h5'))
   			# Training
   			# Save training metrics regularly
-			csv_logger = CSVLogger(os.path.join('logs','training','training_log_oubli_'+oubli_str+'_'+str(run)+'.log'))
+			csv_logger = CSVLogger(os.path.join('logs','training','oubli','training_log_oubli_'+oubli_str+'_'+str(run)+'.log'))
 	  		# Early stopping
 			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
 			verbose = 2
