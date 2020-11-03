@@ -432,33 +432,33 @@ elif train_type == 'taille':
 		print('Jaccard on test set for oubli '+taille_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 		
 		plt.figure()
-			for i in range(5):
-				plt.subplot(5,6,i*6+1).title.set_text('input')
-				plt.imshow(X_test[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+2).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+3).title.set_text('truth')
-				plt.imshow(Y_test[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_test[(i)*9])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+5).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i)*9])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+6).title.set_text('truth')
-				plt.imshow(Y_test[(i)*9])
-				plt.axis('off')	
-			plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
-			plt.clf()
-			plt.close()
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_test[i*4])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('prediction')
+			plt.imshow(model.predict(X_test)[i*4])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('truth')
+			plt.imshow(Y_test[i*4])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_test[(i)*9])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('prediction')
+			plt.imshow(model.predict(X_test)[(i)*9])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('truth')
+			plt.imshow(Y_test[(i)*9])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','taille','taille_'+taille_str+'_run_'+str(run)+'.png'))
+		plt.clf()
+		plt.close()
 		
 		'''	
 		# Training curve
@@ -546,7 +546,7 @@ elif train_type == 'deplace':
 			K.clear_session()
 			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 			model.compile(loss=loss_func, optimizer=opt)
-			print('deplace {}, run {}, patience {}'.format(proba_oversight,run,patience))
+			print('deplace {}, run {}, patience {}'.format(deplace,run,patience))
 			# Load weights
 			model.load_weights(os.path.join('weights','start_weights.h5'))
   			# Training
