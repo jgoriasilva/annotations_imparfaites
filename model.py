@@ -94,7 +94,7 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'deplace'
+train_type = 'taille'
 # train_type = input('Train type [control/oubli/taille/deplace]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
