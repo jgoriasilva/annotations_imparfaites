@@ -594,7 +594,8 @@ elif train_type == 'mean':
 					Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
 					Y_train_tmp = Y_train[:,:,:,:]
 					for img in Y_train:
-						threshold = filters.threshold_otsu(img)
+						# threshold = filters.threshold_otsu(img)
+						threshold = 0.8
 						img[img >= threshold] = 1
 						img[img < threshold] = 0
 									
@@ -602,7 +603,8 @@ elif train_type == 'mean':
 					Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
 					Y_val_tmp = Y_val[:,:,:,:]
 					for img in Y_val:
-						threshold = filters.threshold_otsu(img)
+						# threshold = filters.threshold_otsu(img)
+						threshold = 0.8
 						img[img >= threshold] = 1
 						img[img < threshold] = 0
 
