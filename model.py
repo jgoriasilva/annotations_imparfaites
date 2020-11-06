@@ -358,14 +358,6 @@ elif train_type == 'taille':
 					r2=int(r1*rad_ratio)
 					v=data[i][j][4]
 					draw_ring(im3,x,y,r1,r2,1)
-		'''
-		plt.figure()
-		plt.subplot(1,2,1)
-		plt.imshow(img_imp_gt[2])
-		plt.subplot(1,2,2)
-		plt.imshow(img_gt[2])
-		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
-		'''
 
 		run = 0
 		
@@ -482,9 +474,9 @@ elif train_type == 'taille':
 	distortion_log.close()
 	jaccard_log.close()
 
-elif train_type == 'centre':	
-	distortion_log = open(os.path.join('logs','distortion','distortion_centre.log'),'w')
-	jaccard_log = open(os.path.join('logs','jaccard','jaccard_centre.log'),'w')
+elif train_type == 'mean':	
+	distortion_log = open(os.path.join('logs','distortion','distortion_mean.log'),'w')
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
 	
 	for mean in [4,5]:
 		mean_str = str(mean)
@@ -504,14 +496,6 @@ elif train_type == 'centre':
 					r2=int(r1*rad_ratio)
 					v=data[i][j][4]
 					draw_ring(im3,x,y,r1,r2,1)
-		'''
-		plt.figure()
-		plt.subplot(1,2,1)
-		plt.imshow(img_imp_gt[2])
-		plt.subplot(1,2,2)
-		plt.imshow(img_gt[2])
-		plt.savefig(os.path.join('images','test_'+param_str+'.png'))
-		'''
 
 		run = 0
 		
