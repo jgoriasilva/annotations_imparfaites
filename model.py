@@ -479,7 +479,7 @@ elif train_type == 'mean':
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
 	
 	for mean in [4,5,6,7]:
-		for std in range(5,40):
+		for std in range(5,45,5):
 			std /= 10
 			patience = 5
 		

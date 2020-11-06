@@ -47,7 +47,7 @@ if train_type == 'oubli':
 	data_2 = np.array(data_2)
 	data_3 = np.array(data_3)
 
-elif train_type == 'taille' or train_type == 'deplace':
+elif train_type == 'taille' or train_type == 'mean' or train_type == 'deplace':
 	for line in jaccard_log:
 		jaccard_data.append(float(line.split(' ')[-1]))
 	data = np.array([distortion_data,jaccard_data])
@@ -60,6 +60,9 @@ if train_type == 'oubli':
 	plt.plot(data_2[:,0],data_2[:,1],'o',label='run 2')
 	plt.plot(data_3[:,0],data_3[:,1],'o',label='run 3')
 elif train_type == 'taille':
+	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
+	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
+elif train_type == 'mean':
 	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
 elif train_type == 'deplace':
