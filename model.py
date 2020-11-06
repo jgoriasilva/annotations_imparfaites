@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='2'
+os.environ["CUDA_VISIBLE_DEVICES"] ='3'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -94,8 +94,8 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'oubli'
-# train_type = input('Train type [control/oubli/taille/deplace]: ')
+train_type = 'mean'
+# train_type = input('Train type [control/oubli/taille/mean/deplace]: ')
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
 	Y_val=img_gt[n_train:n_train+n_val,:,:,:]
@@ -478,10 +478,10 @@ elif train_type == 'mean':
 	distortion_log = open(os.path.join('logs','distortion','distortion_mean.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
 	
-	for mean in [4,5]:
+	for mean in [4,5,6,7]:
 		mean_str = str(mean)
 		stand_dev = 1.0
-		patience = 20
+		patience = 5
 	
 		# Generate the images
 		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -559,8 +559,8 @@ elif train_type == 'mean':
 		model.save_weights(os.path.join('weights','mean','model_mean_'+mean_str+'.h5'))
 		print('Saved model mean '+mean_str+' to disk')
 
-		jaccard_log.write('Jaccard on test set for oubli '+mean_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
-		print('Jaccard on test set for oubli '+mean_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
+		jaccard_log.write('Jaccard on test set for mean '+mean_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+		print('Jaccard on test set for mean '+mean_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
 		
 		plt.figure()
 		for i in range(5):
