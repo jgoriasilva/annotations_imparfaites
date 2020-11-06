@@ -1,12 +1,4 @@
-Jaccard between ground truth and labels for mean 4 std 1.0: 0.35838747240356394
-Jaccard between ground truth and labels for mean 4 std 1.5: 0.3503052612307952
-Jaccard between ground truth and labels for mean 4 std 2.0: 0.339819752533174
-Jaccard between ground truth and labels for mean 5 std 1.0: 0.5053365043141835
-Jaccard between ground truth and labels for mean 5 std 1.5: 0.4537440172993067
-Jaccard between ground truth and labels for mean 5 std 2.0: 0.4055611795497162
-Jaccard between ground truth and labels for mean 6 std 1.0: 0.5437338325511705
-Jaccard between ground truth and labels for mean 6 std 1.5: 0.4778108208520249
-Jaccard between ground truth and labels for mean 6 std 2.0: 0.4143750266179368
-Jaccard between ground truth and labels for mean 7 std 1.0: 0.47110086264710477
-Jaccard between ground truth and labels for mean 7 std 1.5: 0.4199285875174231
-Jaccard between ground truth and labels for mean 7 std 2.0: 0.37555934556484916
+Jaccard between ground truth and labels for mean 4 std 2.0: 0.3401210622958117
+Jaccard between ground truth and labels for mean 5 std 2.0: 0.4049139763532966
+Jaccard between ground truth and labels for mean 6 std 2.0: 0.41245250674316725
+Jaccard between ground truth and labels for mean 7 std 2.0: 0.3737690673551873
