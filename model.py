@@ -479,9 +479,9 @@ elif train_type == 'mean':
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
 	
 	for mean in [4,5,6,7]:
-		for std in range(5,45,5):
+		for std in range(10,25,5):
 			std /= 10
-			patience = 5
+			patience = 10
 		
 			# Generate the images
 			img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -531,7 +531,7 @@ elif train_type == 'mean':
 				plt.subplot(5,6,i*6+6).title.set_text('ground truth')
 				plt.imshow(img_gt[n_train+i])
 				plt.axis('off')	
-			plt.savefig(os.path.join('images','mean','initial_mean_{}_{}.png'.format(mean,std)))
+			plt.savefig(os.path.join('images','mean','initial_mean_{}_std_{}.png'.format(mean,std)))
 			plt.clf()
 			plt.close()
 
@@ -587,7 +587,7 @@ elif train_type == 'mean':
 				plt.subplot(5,6,i*6+6).title.set_text('truth')
 				plt.imshow(Y_test[(i+1)*18])
 				plt.axis('off')	
-			plt.savefig(os.path.join('images','mean','mean_{}_std_{}_run_{}.png'.format(mean,run,std)))
+			plt.savefig(os.path.join('images','mean','mean_{}_std_{}_run_{}.png'.format(mean,std,run)))
 			plt.clf()
 			plt.close()
 			
