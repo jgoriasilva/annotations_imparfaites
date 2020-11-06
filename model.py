@@ -477,11 +477,13 @@ elif train_type == 'taille':
 elif train_type == 'mean':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_mean.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
+	patience = 5
+	runs_train = 3
+	modifications = 'n'
 	
 	for mean in [4,5,6,7]:
 		for std in range(10,25,5):
 			std /= 10
-			patience = 10
 		
 			# Generate the images
 			img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
@@ -496,10 +498,6 @@ elif train_type == 'mean':
 						r2=int(r1*rad_ratio)
 						v=data[i][j][4]
 						draw_ring(im3,x,y,r1,r2,1)
-
-			run = 0
-			
-			print('mean {}, std {}, run {}, patience {}'.format(mean,std,run,patience))
 			
 			# Labels
 			Y_train=img_imp_gt[:n_train,:,:,:]
@@ -535,62 +533,105 @@ elif train_type == 'mean':
 			plt.clf()
 			plt.close()
 
-			K.clear_session()
-			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
-			model.compile(loss=loss_func, optimizer=opt)
+			for run in range(runs_train):
+				print('mean {}, std {}, run {}, patience {}'.format(mean,std,run,patience))
 
-			# Load weights
-			model.load_weights(os.path.join('weights','start_weights.h5'))
+				K.clear_session()
+				model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
+				model.compile(loss=loss_func, optimizer=opt)
+
+				# Load weights
+				model.load_weights(os.path.join('weights','start_weights.h5'))
+				
+				# Training
+				# Save training metrics regularly
+				csv_logger = CSVLogger(os.path.join('logs','training','mean','training_log_mean_{}_std_{}.log'.format(mean,std)))
+				# Early stopping
+				es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
+				verbose = 2
+				history = model.fit(X_train, Y_train,
+							batch_size=batch_size,
+							epochs=nb_epoch,
+							validation_data=(X_val, Y_val),
+							shuffle=True,
+							verbose=verbose,
+							callbacks=[es, csv_logger])
+
+				jaccard_log.write('Jaccard on test set for mean {} std {} run {} = {}\n'.format(mean,std,run,jaccard(Y_test,model.predict(X_test)))) 
+				print('Jaccard on test set for mean {} std {} run {} = {}'.format(mean,std,run,jaccard(Y_test,model.predict(X_test)))) 
+				
+				plt.figure()
+				for i in range(5):
+					plt.subplot(5,6,i*6+1).title.set_text('input')
+					plt.imshow(X_test[i*4])
+					plt.axis('off')
+				for i in range(5):
+					plt.subplot(5,6,i*6+2).title.set_text('prediction')
+					plt.imshow(model.predict(X_test)[i*4])
+					plt.axis('off')
+				for i in range(5):
+					plt.subplot(5,6,i*6+3).title.set_text('truth')
+					plt.imshow(Y_test[i*4])
+					plt.axis('off')
+				for i in range(5):
+					plt.subplot(5,6,i*6+4).title.set_text('input')
+					plt.imshow(X_test[(i+1)*18])
+					plt.axis('off')
+				for i in range(5):
+					plt.subplot(5,6,i*6+5).title.set_text('prediction')
+					plt.imshow(model.predict(X_test)[(i+1)*18])
+					plt.axis('off')
+				for i in range(5):
+					plt.subplot(5,6,i*6+6).title.set_text('truth')
+					plt.imshow(Y_test[(i+1)*18])
+					plt.axis('off')	
+				plt.savefig(os.path.join('images','mean','mean_{}_std_{}_run_{}.png'.format(mean,std,run)))
+				plt.clf()
+				plt.close()
+
+				if modifications == 'y':
+					Y_train = model.predict(X_train)
+					Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+					Y_train_tmp = Y_train[:,:,:,:]
+					for img in Y_train:
+						threshold = filters.threshold_otsu(img)
+						img[img >= threshold] = 1
+						img[img < threshold] = 0
+									
+					Y_val = model.predict(X_val)
+					Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
+					Y_val_tmp = Y_val[:,:,:,:]
+					for img in Y_val:
+						threshold = filters.threshold_otsu(img)
+						img[img >= threshold] = 1
+						img[img < threshold] = 0
+
+				elif modifications == 'n':
+					Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+					Y_train = model.predict(X_train)[:,:,:,:]
+				
+					Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
+					Y_val = model.predict(X_val)[:,:,:,:]
+				
+				'''
+				jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+				jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+				jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+				print('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:])))
+
+				if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
+					Y_train = Y_train_tmp
+					Y_val = Y_val_tmp
+					quit_train = 1
+				
+				'''
+				
+				# patience -= 2
 			
-			# Training
-			# Save training metrics regularly
-			csv_logger = CSVLogger(os.path.join('logs','training','mean','training_log_mean_{}_std_{}.log'.format(mean,std)))
-			# Early stopping
-			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
-			verbose = 2
-			history = model.fit(X_train, Y_train,
-						batch_size=batch_size,
-						epochs=nb_epoch,
-						validation_data=(X_val, Y_val),
-						shuffle=True,
-						verbose=verbose,
-						callbacks=[es, csv_logger])
 			# serialize weights to HDF5
 			model.save_weights(os.path.join('weights','mean','model_mean_{}_std_{}.h5'.format(mean,std)))
 			print('Saved model mean {} std {} to disk'.format(mean,std))
 
-			jaccard_log.write('Jaccard on test set for mean {} std {} run {} = {}\n'.format(mean,std,run,jaccard(Y_test,model.predict(X_test)))) 
-			print('Jaccard on test set for mean {} std {} run {} = {}'.format(mean,std,run,jaccard(Y_test,model.predict(X_test)))) 
-			
-			plt.figure()
-			for i in range(5):
-				plt.subplot(5,6,i*6+1).title.set_text('input')
-				plt.imshow(X_test[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+2).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+3).title.set_text('truth')
-				plt.imshow(Y_test[i*4])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+4).title.set_text('input')
-				plt.imshow(X_test[(i+1)*18])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+5).title.set_text('prediction')
-				plt.imshow(model.predict(X_test)[(i+1)*18])
-				plt.axis('off')
-			for i in range(5):
-				plt.subplot(5,6,i*6+6).title.set_text('truth')
-				plt.imshow(Y_test[(i+1)*18])
-				plt.axis('off')	
-			plt.savefig(os.path.join('images','mean','mean_{}_std_{}_run_{}.png'.format(mean,std,run)))
-			plt.clf()
-			plt.close()
-			
 			'''	
 			# Training curve
 			plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -608,7 +649,7 @@ elif train_type == 'mean':
 			'''
 			
 			# Distortion between gt and labels 	
-			distortion_log.write('Jaccard between ground truth and labels for mean {} std {}: {}\n'.format(mean,std,jaccard(img_gt, img_imp_gt)))
+		distortion_log.write('Jaccard between ground truth and labels for mean {} std {}: {}\n'.format(mean,std,jaccard(img_gt, img_imp_gt)))
 	distortion_log.close()
 	jaccard_log.close()
 
