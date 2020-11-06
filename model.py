@@ -1,7 +1,7 @@
 import tensorflow as tf
 print('Using Tensorflow version', tf.__version__)
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] ='3'
+os.environ["CUDA_VISIBLE_DEVICES"] ='2'
 #from tensorflow.compat.v1.keras.backend import set_session
 #config = tf.compat.v1.ConfigProto()
 #config.gpu_options.allow_growth = True  # dynamically grow the memory used on the GPU
@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import filters
 from skimage import exposure
+from skimage import morphology
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
@@ -477,12 +478,12 @@ elif train_type == 'taille':
 elif train_type == 'mean':	
 	distortion_log = open(os.path.join('logs','distortion','distortion_mean.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
-	patience = 5
-	runs_train = 3
+	patience = 20
+	runs_train = 10
 	modifications = 'y'
 	
 	for mean in [4,5,6,7]:
-		for std in range(10,25,5):
+		for std in range(5,25,5):
 			std /= 10
 		
 			# Generate the images
@@ -594,19 +595,24 @@ elif train_type == 'mean':
 					Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
 					Y_train_tmp = Y_train[:,:,:,:]
 					for img in Y_train:
-						# threshold = filters.threshold_otsu(img)
-						threshold = 0.8
-						img[img >= threshold] = 1
-						img[img < threshold] = 0
+						img = morphology.erosion(img)
+						if run == runs_train-2:
+							threshold = filters.threshold_otsu(img)
+							#threshold = 0.8
+							img[img >= threshold] = 1
+							img[img < threshold] = 0
+							
 									
 					Y_val = model.predict(X_val)
 					Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
 					Y_val_tmp = Y_val[:,:,:,:]
 					for img in Y_val:
-						# threshold = filters.threshold_otsu(img)
-						threshold = 0.8
-						img[img >= threshold] = 1
-						img[img < threshold] = 0
+						img = morphology.erosion(img)
+						if run == runs_train-2:
+							threshold = filters.threshold_otsu(img)
+							#threshold = 0.8
+							img[img >= threshold] = 1
+							img[img < threshold] = 0
 
 				elif modifications == 'n':
 					Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
