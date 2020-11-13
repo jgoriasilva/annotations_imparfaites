@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-train_type = input('train type[oubli/taille/deplace]? ')
+train_type = input('train type[oubli/taille/mean/deplace]? ')
 distortion_log = open(os.path.join('logs','distortion','distortion_'+train_type+'.log'),'r')
 jaccard_log = open(os.path.join('logs','jaccard','jaccard_'+train_type+'.log'),'r')
 distortion_data = []

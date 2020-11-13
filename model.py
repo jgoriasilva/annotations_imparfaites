@@ -479,11 +479,11 @@ elif train_type == 'mean':
 	distortion_log = open(os.path.join('logs','distortion','distortion_mean.log'),'w')
 	jaccard_log = open(os.path.join('logs','jaccard','jaccard_mean.log'),'w')
 	patience = 20
-	runs_train = 10
+	runs_train = 1
 	modifications = 'y'
 	
 	for mean in [4,5,6,7]:
-		for std in range(5,25,5):
+		for std in range(10,25,5):
 			std /= 10
 		
 			# Generate the images
@@ -536,7 +536,7 @@ elif train_type == 'mean':
 
 			for run in range(runs_train):
 				print('mean {}, std {}, run {}, patience {}'.format(mean,std,run,patience))
-
+				'''
 				K.clear_session()
 				model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 				model.compile(loss=loss_func, optimizer=opt)
@@ -620,7 +620,7 @@ elif train_type == 'mean':
 				
 					Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 					Y_val = model.predict(X_val)[:,:,:,:]
-				
+				'''
 				'''
 				jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 				jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
@@ -635,11 +635,12 @@ elif train_type == 'mean':
 				'''
 				
 				# patience -= 2
-			
+			'''
 			# serialize weights to HDF5
 			model.save_weights(os.path.join('weights','mean','model_mean_{}_std_{}.h5'.format(mean,std)))
 			print('Saved model mean {} std {} to disk'.format(mean,std))
 
+			'''
 			'''	
 			# Training curve
 			plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -657,7 +658,7 @@ elif train_type == 'mean':
 			'''
 			
 			# Distortion between gt and labels 	
-		distortion_log.write('Jaccard between ground truth and labels for mean {} std {}: {}\n'.format(mean,std,jaccard(img_gt, img_imp_gt)))
+			distortion_log.write('Jaccard between ground truth and labels for mean {} std {}: {}\n'.format(mean,std,jaccard(img_gt, img_imp_gt)))
 	distortion_log.close()
 	jaccard_log.close()
 
