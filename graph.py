@@ -47,6 +47,11 @@ if train_type == 'oubli':
 	data_2 = np.array(data_2)
 	data_3 = np.array(data_3)
 
+elif train_type == 'taille' or train_type == 'mean' or train_type == 'deplace':
+	for line in jaccard_log:
+		jaccard_data.append(float(line.split(' ')[-1]))
+	data = np.array([distortion_data,jaccard_data])
+'''
 elif train_type == 'deplace':
 	for line in jaccard_log:
 		line = line.split(' ')
@@ -78,11 +83,8 @@ elif train_type == 'deplace':
 	data_2 = np.array(data_2)
 	data_3 = np.array(data_3)
 	data_4 = np.array(data_4)
+'''
 
-elif train_type == 'taille' or train_type == 'mean' or train_type == 'deplace':
-	for line in jaccard_log:
-		jaccard_data.append(float(line.split(' ')[-1]))
-	data = np.array([distortion_data,jaccard_data])
 
 plt.figure()
 if train_type == 'oubli':
@@ -103,9 +105,9 @@ if train_type == 'oubli':
 # 	plt.xlim(0.4,0.8)
 # 	plt.ylim(0)
 elif train_type == 'deplace':
-	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
+	plt.plot([0.4,0.8],[0.4,0.8],'--', label='y = x')
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
-	plt.xlim(0)
+	plt.xlim(0.4,0.8)
 	plt.ylim(0)
 elif train_type == 'taille':
 	plt.plot([0,0.6],[0,0.6],'--', label='y = x')
@@ -117,7 +119,7 @@ elif train_type == 'mean':
 	plt.plot(data[0,:],data[1,:],'o',label='network outputs')
 	plt.xlim(0)
 	plt.ylim(0)
-plt.xlabel('Jaccard between ground truth labels and labels given to the network')
+plt.xlabel('Jaiccard between ground truth labels and labels given to the network')
 plt.ylabel('Jaccard between ground truth labels and outputs of the network')
 plt.title('Relation between imperfect labeling and network performance')
 plt.grid()
