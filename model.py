@@ -536,7 +536,7 @@ elif train_type == 'mean':
 
 			for run in range(runs_train):
 				print('mean {}, std {}, run {}, patience {}'.format(mean,std,run,patience))
-				'''
+				
 				K.clear_session()
 				model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
 				model.compile(loss=loss_func, optimizer=opt)
@@ -590,6 +590,7 @@ elif train_type == 'mean':
 				plt.clf()
 				plt.close()
 
+				'''
 				if modifications == 'y':
 					Y_train = model.predict(X_train)
 					Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -620,8 +621,7 @@ elif train_type == 'mean':
 				
 					Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 					Y_val = model.predict(X_val)[:,:,:,:]
-				'''
-				'''
+				
 				jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 				jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 				jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
@@ -635,12 +635,12 @@ elif train_type == 'mean':
 				'''
 				
 				# patience -= 2
-			'''
+			
 			# serialize weights to HDF5
 			model.save_weights(os.path.join('weights','mean','model_mean_{}_std_{}.h5'.format(mean,std)))
 			print('Saved model mean {} std {} to disk'.format(mean,std))
 
-			'''
+			
 			'''	
 			# Training curve
 			plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -801,21 +801,39 @@ elif train_type == 'deplace':
 			jaccard_log.write('Jaccard on train set before seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
 			print('Jaccard on train set before seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
 			'''
-			'''
+			
 			if modifications == 'y':
-				Y_train = np.maximum(model.predict(X_train), img_imp_gt[:n_train,:,:,:])
-				Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
-				Y_train_tmp = Y_train[:,:,:,:]
+				Y_train = model.predict(X_train)
 				for img in Y_train:
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					img_diff = img_dilation - img_erosion
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
 					threshold = filters.threshold_otsu(img)
+					#threshold = 0.8
 					img[img >= threshold] = 1
 					img[img < threshold] = 0
 								
-				Y_val = np.maximum(model.predict(X_val), img_imp_gt[n_train:n_train+n_val,:,:,:])
-				Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
-				Y_val_tmp = Y_val[:,:,:,:]
-				for img in Y_val:
+				Y_val = model.predict(X_val)
+				for img in Y_train:
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					img_diff = img_dilation - img_erosion
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
 					threshold = filters.threshold_otsu(img)
+					#threshold = 0.8
 					img[img >= threshold] = 1
 					img[img < threshold] = 0
 
@@ -825,7 +843,7 @@ elif train_type == 'deplace':
 			
 				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 				Y_val = model.predict(X_val)[:,:,:,:]
-			'''
+			
 			'''
 			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
