@@ -533,12 +533,15 @@ elif train_type == 'deplace':
 					plt.figure()
 					plt.subplot(1,5,1).title.set_text('original')
 					plt.imshow(img)
+					plt.axis('off')
 					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
 					plt.subplot(1,5,2).title.set_text('erosion')
 					plt.imshow(img_erosion)
+					plt.axis('off')
 					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
 					plt.subplot(1,5,3).title.set_text('dilation')
 					plt.imshow(img_dilation)
+					plt.axis('off')
 					img_diff = img_dilation - img_erosion
 					#plt.subplot(1,5,4)
 					#plt.imshow(img_diff)
@@ -551,6 +554,7 @@ elif train_type == 'deplace':
 
 					plt.subplot(1,5,4).title.set_text('toggle mapping')
 					plt.imshow(img)
+					plt.axis('off')
 					
 					threshold = filters.threshold_otsu(img)
 					# threshold = 0.8
@@ -558,6 +562,7 @@ elif train_type == 'deplace':
 					img[img < threshold] = 0
 					plt.subplot(1,5,5).title.set_text('threshold')
 					plt.imshow(img)
+					plt.axis('off')
 					plt.show()
 								
 				Y_val = model.predict(X_val)
