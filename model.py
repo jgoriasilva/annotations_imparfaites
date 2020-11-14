@@ -383,3 +383,242 @@ elif train_type == 'taille':
 		plt.savefig(os.path.join('images','taille','initial_'+taille_str+'.png'))
 		plt.clf()
 		plt.close()
+
+elif train_type == 'deplace':
+	distortion_log = open(os.path.join('logs','distortion','distortion_deplace.log'),'w')
+	jaccard_log = open(os.path.join('logs','jaccard','jaccard_deplace.log'),'w')
+	
+	modifications = 'y'
+	# modifications = input('make modifications to the outputs? ')
+	runs_train = 5
+	# runs_train = int(input('how many training runs? '))
+	for deplace in range(100, 155, 5):
+		deplace /= 100
+		deplace_str = str(deplace)
+		# runs_str = str(runs_train)
+		patience = 20
+		# Generate the images
+		img_imp_gt=np.zeros((img_number,img_rows,img_cols,1))
+		for i in range(img_number):
+			im3=img_imp_gt[i,:,:,0]
+			n_rings = data[i, :, 0].sum()
+			for j in range(n_rings):
+				if data[i][j][0]==1:
+					x=data[i][j][1]+round(np.random.normal(scale=deplace))
+					y=data[i][j][2]+round(np.random.normal(scale=deplace))
+					r1=data[i][j][3]
+					r2=int(r1*rad_ratio)
+					v=data[i][j][4]
+					draw_ring(im3,x,y,r1,r2,1)
+		# Labels
+		Y_train=img_imp_gt[:n_train,:,:,:]
+		Y_val=img_imp_gt[n_train:n_train+n_val,:,:,:]
+		Y_test=img_gt[n_train+n_val:n_train+n_val+n_test,:,:,:]
+
+		plt.figure()
+		for i in range(5):
+			plt.subplot(5,6,i*6+1).title.set_text('input')
+			plt.imshow(X_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+2).title.set_text('imperfect label')
+			plt.imshow(Y_train[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+3).title.set_text('ground truth')
+			plt.imshow(img_gt[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+4).title.set_text('input')
+			plt.imshow(X_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+5).title.set_text('imperfect label')
+			plt.imshow(Y_val[i])
+			plt.axis('off')
+		for i in range(5):
+			plt.subplot(5,6,i*6+6).title.set_text('ground truth')
+			plt.imshow(img_gt[n_train+i])
+			plt.axis('off')	
+		plt.savefig(os.path.join('images','deplace','initial_deplace_'+deplace_str+'.png'))
+		plt.clf()
+		plt.close()
+	
+		for run in range(runs_train):
+			continue_train = 0
+			
+			K.clear_session()
+			model = u_net(shape, nb_filters_0, sigma_noise=sigma_noise)
+			model.compile(loss=loss_func, optimizer=opt)
+			print('deplace {}, run {}, patience {}'.format(deplace,run,patience))
+			# Load weights
+			model.load_weights(os.path.join('weights','start_weights.h5'))
+  			# Training
+  			# Save training metrics regularly
+			csv_logger = CSVLogger(os.path.join('logs','training','deplace','training_log_deplace_'+deplace_str+'_'+str(run)+'.log'))
+	  		# Early stopping
+			es= EarlyStopping(monitor='val_loss', min_delta=0, patience=patience, mode='auto', restore_best_weights=True)
+			verbose = 2
+			history = model.fit(X_train, Y_train,
+                      batch_size=batch_size,
+                      epochs=nb_epoch,
+                      validation_data=(X_val, Y_val),
+                      shuffle=True,
+                      verbose=verbose,
+                      callbacks=[es, csv_logger])
+			
+			jaccard_log.write('Jaccard on test set for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))+'\n') 
+			print('Jaccard on test set for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_test,model.predict(X_test)))) 
+
+			plt.figure()
+			for i in range(5):
+				plt.subplot(5,6,i*6+1).title.set_text('input')
+				plt.imshow(X_test[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+2).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+3).title.set_text('truth')
+				plt.imshow(Y_test[i*4])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+4).title.set_text('input')
+				plt.imshow(X_test[(i+1)*18])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+5).title.set_text('prediction')
+				plt.imshow(model.predict(X_test)[(i+1)*18])
+				plt.axis('off')
+			for i in range(5):
+				plt.subplot(5,6,i*6+6).title.set_text('truth')
+				plt.imshow(Y_test[(i+1)*18])
+				plt.axis('off')	
+			plt.savefig(os.path.join('images','deplace','deplace_'+deplace_str+'_run_'+str(run)+'.png'))
+			plt.clf()
+			plt.close()
+
+			'''
+			for image in model.predict(X_test):
+				black = 0
+				gray = 0
+				for row in image:
+					for pixel in row:
+						if pixel[:]*256 < 20:
+							black += 1
+						if pixel[:]*256 < 240:
+							gray += 1
+				
+				rate = float(black)/float(gray)
+				if(rate < 0.80):
+					continue_train = 1
+					break
+			
+			if(continue_train == 0):
+				break
+			'''
+			'''
+			jaccard_train_before = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_before = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set before seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set before seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))) 
+			'''
+			
+			if modifications == 'y':
+				Y_train = model.predict(X_train)
+				for img in Y_train:
+					#selem = morphology.square(2)
+					#plt.figure()
+					#plt.subplot(1,6,1)
+					#plt.imshow(img)
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					#plt.subplot(1,6,2)
+					#plt.imshow(img_erosion)
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					#plt.subplot(1,6,3)
+					#plt.imshow(img_dilation)
+					img_diff = img_dilation - img_erosion
+					#plt.subplot(1,6,4)
+					#plt.imshow(img_diff)
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2 + img_erosion[i,j]):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
+					#plt.subplot(1,6,5)
+					#plt.imshow(img)
+					
+					threshold = filters.threshold_otsu(img)
+					# threshold = 0.8
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+					#plt.subplot(1,6,6)
+					#plt.imshow(img)
+					#plt.show()
+								
+				Y_val = model.predict(X_val)
+				for img in Y_val:
+					# selem = morphology.square(2)
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					img_diff = img_dilation - img_erosion
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2 + img_erosion[i,j]):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
+					threshold = filters.threshold_otsu(img)
+					#threshold = 0.8
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+
+			elif modifications == 'n':
+				Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
+				Y_train = model.predict(X_train)[:,:,:,:]
+			
+				Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
+				Y_val = model.predict(X_val)[:,:,:,:]
+			
+			'''
+			jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
+			jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
+			jaccard_log.write('Jaccard on train set after seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
+			print('Jaccard on train set after seuil for deplace '+deplace_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:])))
+
+			if jaccard_train_after < jaccard_train_before and jaccard_val_after < jaccard_val_before:
+				Y_train = Y_train_tmp
+				Y_val = Y_val_tmp
+				quit_train = 1
+			
+			'''
+			
+			# patience -= 2
+		
+		# serialize weights to HDF5
+		model.save_weights(os.path.join('weights','deplace','model_deplace_'+deplace_str+'.h5'))
+		print('Saved model deplace '+deplace_str+' to disk')
+		'''
+		# Training curve
+		plt.rcParams['figure.figsize'] = (10.0, 8.0)
+		plt.plot(history.epoch, history.history['loss'], label='train')
+		plt.plot(history.epoch, history.history['val_loss'], label='val')
+		plt.title('Training performance')
+		plt.ylabel('loss')
+		plt.xlabel('epoch')
+		plt.legend()
+		plt.ylim(0.0, 0.9)
+		plt.savefig(os.path.join('images','training','training_curve_deplace'+param_str+'.png'))
+		plt.cla()	
+		plt.clf()
+		plt.close()
+		'''
+ 	
+		# Distortion between gt and labels 	
+		distortion_log.write('Jaccard between ground truth and labels for deplace ' + deplace_str + ' : ' + str(jaccard(img_gt, img_imp_gt)) + '\n')
+	distortion_log.close()
+	jaccard_log.close()
