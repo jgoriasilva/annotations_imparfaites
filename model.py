@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import filters
 from skimage import exposure
+from skimage import morphology
 from tensorflow.keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam
 from tensorflow.keras.callbacks import EarlyStopping, CSVLogger
 from tensorflow.keras.models import model_from_json
@@ -94,8 +95,8 @@ X_train=img_noise[:n_train,:,:,:]
 X_val=img_noise[n_train:n_train+n_val,:,:,:]
 X_test=img_noise[n_train+n_val:n_train+n_val+n_test,:,:,:]
 
-train_type = 'oubli'
-# train_type = input('Train type [control/oubli/taille]: ')
+#train_type = 'oubli'
+train_type = input('Train type [control/oubli/taille/deplace]: ')
 
 if train_type == 'control': 
 	Y_train=img_gt[:n_train,:,:,:]
@@ -392,7 +393,7 @@ elif train_type == 'deplace':
 	# modifications = input('make modifications to the outputs? ')
 	runs_train = 5
 	# runs_train = int(input('how many training runs? '))
-	for deplace in range(100, 155, 5):
+	for deplace in range(110, 155, 5):
 		deplace /= 100
 		deplace_str = str(deplace)
 		# runs_str = str(runs_train)
@@ -529,17 +530,17 @@ elif train_type == 'deplace':
 				Y_train = model.predict(X_train)
 				for img in Y_train:
 					#selem = morphology.square(2)
-					#plt.figure()
-					#plt.subplot(1,6,1)
-					#plt.imshow(img)
+					plt.figure()
+					plt.subplot(1,5,1).title.set_text('original')
+					plt.imshow(img)
 					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
-					#plt.subplot(1,6,2)
-					#plt.imshow(img_erosion)
+					plt.subplot(1,5,2).title.set_text('erosion')
+					plt.imshow(img_erosion)
 					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
-					#plt.subplot(1,6,3)
-					#plt.imshow(img_dilation)
+					plt.subplot(1,5,3).title.set_text('dilation')
+					plt.imshow(img_dilation)
 					img_diff = img_dilation - img_erosion
-					#plt.subplot(1,6,4)
+					#plt.subplot(1,5,4)
 					#plt.imshow(img_diff)
 					for i in range(32):
 						for j in range(32):
@@ -548,16 +549,16 @@ elif train_type == 'deplace':
 							else:
 								img[i,j,0] = img_dilation[i,j]
 
-					#plt.subplot(1,6,5)
-					#plt.imshow(img)
+					plt.subplot(1,5,4).title.set_text('toggle mapping')
+					plt.imshow(img)
 					
 					threshold = filters.threshold_otsu(img)
 					# threshold = 0.8
 					img[img >= threshold] = 1
 					img[img < threshold] = 0
-					#plt.subplot(1,6,6)
-					#plt.imshow(img)
-					#plt.show()
+					plt.subplot(1,5,5).title.set_text('threshold')
+					plt.imshow(img)
+					plt.show()
 								
 				Y_val = model.predict(X_val)
 				for img in Y_val:
