@@ -590,30 +590,57 @@ elif train_type == 'mean':
 				plt.clf()
 				plt.close()
 
-				'''
 				if modifications == 'y':
-					Y_train = model.predict(X_train)
-					Y_train_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
-					Y_train_tmp = Y_train[:,:,:,:]
-					for img in Y_train:
-						img = morphology.erosion(img)
-						if run == runs_train-2:
-							threshold = filters.threshold_otsu(img)
-							#threshold = 0.8
-							img[img >= threshold] = 1
-							img[img < threshold] = 0
-							
-									
-					Y_val = model.predict(X_val)
-					Y_val_tmp = np.zeros((n_train,img_rows,img_cols,img_channels))
-					Y_val_tmp = Y_val[:,:,:,:]
-					for img in Y_val:
-						img = morphology.erosion(img)
-						if run == runs_train-2:
-							threshold = filters.threshold_otsu(img)
-							#threshold = 0.8
-							img[img >= threshold] = 1
-							img[img < threshold] = 0
+				Y_train = model.predict(X_train)
+				for img in Y_train:
+					#selem = morphology.square(2)
+					#plt.figure()
+					#plt.subplot(1,6,1)
+					#plt.imshow(img)
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					#plt.subplot(1,6,2)
+					#plt.imshow(img_erosion)
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					#plt.subplot(1,6,3)
+					#plt.imshow(img_dilation)
+					img_diff = img_dilation - img_erosion
+					#plt.subplot(1,6,4)
+					#plt.imshow(img_diff)
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2 + img_erosion[i,j]):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
+					#plt.subplot(1,6,5)
+					#plt.imshow(img)
+					
+					threshold = filters.threshold_otsu(img)
+					# threshold = 0.8
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
+					#plt.subplot(1,6,6)
+					#plt.imshow(img)
+					#plt.show()
+								
+				Y_val = model.predict(X_val)
+				for img in Y_val:
+					# selem = morphology.square(2)
+					img_erosion = morphology.erosion(np.reshape(img, (32,32)))
+					img_dilation = morphology.dilation(np.reshape(img, (32,32)))
+					img_diff = img_dilation - img_erosion
+					for i in range(32):
+						for j in range(32):
+							if (img[i,j,0] <= img_diff[i,j]/2 + img_erosion[i,j]):
+								img[i,j,0] = img_erosion[i,j]
+							else:
+								img[i,j,0] = img_dilation[i,j]
+
+					threshold = filters.threshold_otsu(img)
+					#threshold = 0.8
+					img[img >= threshold] = 1
+					img[img < threshold] = 0
 
 				elif modifications == 'n':
 					Y_train = np.zeros((n_train,img_rows,img_cols,img_channels))
@@ -621,7 +648,8 @@ elif train_type == 'mean':
 				
 					Y_val = np.zeros((n_val,img_rows,img_cols,img_channels))
 					Y_val = model.predict(X_val)[:,:,:,:]
-				
+
+				'''	
 				jaccard_train_after = jaccard(Y_train,img_imp_gt[:n_train,:,:,:])
 				jaccard_val_after = jaccard(Y_val,img_imp_gt[n_train:n_train+n_val,:,:,:])
 				jaccard_log.write('Jaccard on train set after seuil for oubli '+oubli_str+' run '+str(run)+' '+str(jaccard(Y_train,img_imp_gt[:n_train,:,:,:]))+'\n') 
@@ -631,8 +659,8 @@ elif train_type == 'mean':
 					Y_train = Y_train_tmp
 					Y_val = Y_val_tmp
 					quit_train = 1
-				
 				'''
+			
 				
 				# patience -= 2
 			
